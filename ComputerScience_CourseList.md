@@ -1,4 +1,4 @@
-PSC 103 Intro Personal Computing
+CPSC 103 Intro Personal Computing
 CPSC 120 Introduction to Programming 
 CPSC 121 Programming Concepts 
 CPSC 131 Data Structures Concepts
