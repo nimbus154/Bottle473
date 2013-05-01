@@ -1,7 +1,87 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<meta charset="utf-8">
+		<title>Bootstrap, from Twitter</title>
+		<meta name="viewport" content="width=device-width,
+		initial-scale=1.0">
+		<meta name="description" content="">
+		<meta name="author" content="">
+
+		<!-- Le styles -->
+		<link href="style.css" rel="stylesheet">
+		<link href="bootstrap/css/bootstrap.css" rel="stylesheet">
+		<link href="bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+
+		<!-- HTML5 shim, for IE6-8 support of HTML5 elements --> <!--[if lt IE 9]> 
+		<script src="bootstrap/js/html5shiv.js"></script> <![endif]--> 
+		<!-- Fav and touch icons -->
+		<link rel="apple-touch-icon-precomposed" sizes="144x144" href="bootstrap/ico/apple-touch-icon-144-precomposed.png">
+		<link rel="apple-touch-icon-precomposed" sizes="114x114" href="bootstrap/ico/apple-touch-icon-114-precomposed.png">
+		<link rel="apple-touch-icon-precomposed" sizes="72x72" href="bootstrap/ico/apple-touch-icon-72-precomposed.png">
+		<link rel="apple-touch-icon-precomposed" href="bootstrap/ico/apple-touch-icon-57-precomposed.png"> 
+		<link rel="shortcut icon" href="bootstrap/ico/favicon.png">
 	</head>
 	<body>
+		<div class="app">
+			<header class="user-menu">
+				<span>Welcome, Username</span>
+				<button class="log-out"><i class="icon-off"></i>Log out</button>
+			</header>
+			<aside class="department-pane">
+				<ul class="departments">
+					<li class="department">Computer Science</li>
+					<li class="department">Math</li>
+					<li class="department">Potions</li>
+					<li class="department">Charms</li>
+					<li class="department">Transfiguration</li>
+			</aside>
+			<aside class="class-pane">
+				<ul class="classes">
+					<li class="class">CPSC 131: Data Structures</li>
+					<li class="class">CPSC 223: Python</li>
+					<li class="class">CPSC 323: Compilers</li>
+					<li class="class">CPSC 473: Web Application Development</li>
+			</aside>
+			<section class="main-pane">
+				<section class="schedule-pane">
+					<div class="toolbar">
+						<button class="add-semester"><i class="icon-plus-sign"></i>Add semester</button>
+					</div>
+					<div class="schedule">
+						<header>
+							<span class="semester">Fall</span>
+							<span class="year">2013</span>
+						</header>
+						<div class="schedule-body">
+							<ul class="classes">
+								<li class="class">CPSC 440: Computer Architecture</li>
+								<li class="class">CPSC 351: Operating Systems Concepts</li>
+								<li class="class">CPSC 362: Software Engineering</li>
+								<li class="class">CPSC 335: Algorithm Design &amp; Analysis</li>
+							</ul>
+						</div>
+					</div>
+					<div class="schedule">
+						<header>
+							<span class="semester">Spring</span>
+							<span class="year">2013</span>
+						</header>
+						<div class="schedule-body">
+							<ul class="classes">
+								<li class="class">CPSC 471: Computer Networking</li>
+								<li class="class">CPSC 223p: Python</li>
+								<li class="class">CPSC 223h: Haskell</li>
+								<li class="class">CPSC 223n: node.js</li>
+							</ul>
+						</div>
+					</div>
+				</section>
+				<footer class="trash-pane">
+					<i class="icon-trash icon-white"></i>
+				</footer>
+			</section>
+		</div>
+		<script src="bootstrap/js/bootstrap.js"></script>
 	</body>
 </html>
