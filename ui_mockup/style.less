@@ -1,0 +1,117 @@
+@import "bootstrap/less/bootstrap.less";
+@import "bootstrap/css/bootstrap.css";
+@import "bootstrap/css/bootstrap-responsive.css";
+
+@border: 5px;
+
+body, html {
+	// required to set height of interior elements
+	height: 100%;
+	width: 100%;
+}
+
+.app {
+	// .row-fluid;
+	height: 100%;
+	width: 100%;
+}
+
+.draggable {
+	cursor: move;
+}
+
+.user-menu {
+	float: right;
+	margin: @border;
+}
+
+.left-pane {
+	float: left;
+	width: 20%;
+	height: 100%;
+	background: #ccc;
+}
+
+.blank-list {
+	list-style-type: none;
+	margin-left: 0;
+	padding-right: @border * 2;
+}
+
+.pill {
+	.label;
+	.btn-info;
+	display: block;
+	width: 100%;
+	margin: @border 0px;
+}
+
+.department-pane {
+	.left-pane;
+	display: none !important;
+
+	.departments {
+		.blank-list;
+
+		.department {
+			.pill;
+		}
+	}
+}
+
+.classes {
+	.blank-list;
+
+	.class {
+		.pill;
+		.draggable;
+	}
+}
+
+.class-pane {
+	.left-pane; 
+}
+
+.main-pane {
+	background: #777;
+	height: 100%;
+	scroll: auto;
+
+	.schedule-pane {
+		height: 80%;
+		color: #fff;
+
+		.toolbar {
+			.add-semester {
+				margin: 5px;
+			}
+		}
+	}
+
+	.trash-pane {
+		// .row;
+		height: 20%;
+		background: rgba(243, 114, 114, 0.98);
+
+		&:hover {
+			background-color: #D10303;
+		}
+	}
+}
+
+.schedule {
+	display: inline-block;
+	width: 225px;
+	max-height: 185px;
+	overflow: hidden;
+	background: #aaa;
+
+	header {
+		font-weight: bold;
+		border-bottom: 1px solid #ccc;
+	}
+
+	.schedule-body {
+		background: #fff;
+	}
+}
