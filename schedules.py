@@ -5,14 +5,21 @@ from bottle import install, run
 from bottle_mongo import MongoPlugin
 from bson.objectid import ObjectId
 
-# from pprint import pprint
-
 install(MongoPlugin(uri='localhost', db='473', json_mongo=True))
 
 secret_key = 84252450
 
 @post('/users/:username/schedules')
 def new_schedule(username, mongodb):
+    '''
+    Input: json empty document {}
+    Output: Response 201 Created and Location with new _id
+
+    Checks for valid user session. If the session checks out, a new schedule
+    document is made. The resulting id is passed in the location header.
+    Status 201 is created. If the session is not valid, status 401 Unauthorized
+    is returned.
+    '''
     session_user = request.get_cookie('sessions', secret=secret_key)
     if session_user:    # Do your thing, man
         # Mongo cursor with single document containing only _id
@@ -29,6 +36,14 @@ def new_schedule(username, mongodb):
 
 @put('/users/:username/schedules/:sid')
 def update_schedule(username, sid, mongodb):
+    '''
+    Input: json schedule document with updates
+    Output: Status 204 No Content, and Location with the schedule id
+
+    Checks for valid user session. If the session checks out, the schedule
+    is updated with the new values in the request. If the session is not valid,
+    status 401 Unauthorized is returned.
+    '''
     # Check session cookie. Returns username if matched; otherwise, None.
     session_user = request.get_cookie('sessions', secret=secret_key)
     if session_user:    # Do your thing, man.
@@ -42,6 +57,12 @@ def update_schedule(username, sid, mongodb):
 
 @get('/users/:username/schedules/:sid')
 def get_schedule(username, sid, mongodb):
+    '''
+    Input: schedule id, sid
+    Output: Schedule document
+
+    Queries and returns the schedule document with the given id.
+    '''
     return mongodb.schedules.find_one({'_id': ObjectId(sid)})
 
 run(host='0.0.0.0', port=8080, debug=True, reloader=True)
