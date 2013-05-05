@@ -64,11 +64,7 @@
 	
 	<script type="text/x-handlebars" id="term">
 		{{term}}
-		<ul class="terms">
-			{{#each classes}}
-				<li>{{this}}</li>
-			{{/each}}
-		</ul>
+		{{render classes classes}}
 	</script>
   <script src="js/libs/jquery-1.9.1.js"></script>
   <script src="js/libs/handlebars-1.0.0-rc.3.js"></script>
