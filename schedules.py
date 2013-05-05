@@ -5,7 +5,7 @@ from bottle import install, run
 from bottle_mongo import MongoPlugin
 from bson.objectid import ObjectId
 
-from pprint import pprint
+# from pprint import pprint
 
 install(MongoPlugin(uri='localhost', db='473', json_mongo=True))
 
@@ -68,13 +68,27 @@ def get_schedule(username, sid, mongodb):
     Queries and returns the schedule document with the given id.
     '''
     user = mongodb.users.find_one({'username': username})
-    if user:
-        try:
+    if user:    # Valid user
+        try:    # Query db for schedule with user_id and sid
             s = mongodb.schedules.find_one({'_id': ObjectId(sid), 'user_id': user['_id']})
+            # If schedule is found, return it. Otherwise, return 404.
             return s if s else \
                 HTTPResponse(status=404, output="User %s does not own schedule %s" % (username,sid))
-        except:
+        except:     # sid in url is not a valid mongo id
             return HTTPResponse(status=400, output="Not a valid schedule id.")
+    return HTTPResponse(status=400, output="Not a valid user.")
+
+@get('/api/users/:username/schedules')
+def get_all_schedules(username, mongodb):
+    '''
+    Input: username
+    Output: List of schedules for user
+
+    Queries and returns all schedule documents for the given user
+    '''
+    user = mongodb.users.find_one({'username': username})
+    if user:    # Valid user
+        return mongodb.schedules.find({'user_id': user['_id']})
     return HTTPResponse(status=400, output="Not a valid user.")
 
 run(host='0.0.0.0', port=8080, debug=True, reloader=True)
