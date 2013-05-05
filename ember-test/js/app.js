@@ -171,11 +171,38 @@ var departments = [
 	}
 ];
 
+// thanks to http://jsfiddle.net/ud3323/5uX9H/ for drag n' drop tips
+App.ClassesView = Ember.View.extend({
+	templateName: 'classes',
+	attributeBindings: 'draggable',
+	draggable: 'true',
+	dragStart: function(event) {
+		console.log("Drag start");
+	}
+});
+
+App.ClassView = Ember.View.extend({
+	templateName: 'class',
+	dragEnter: function(event) {
+		event.preventDefault();
+		console.log("drag enter canceled");
+		return false;
+	},
+	dragOver: function(event) {
+		event.preventDefault();
+		console.log("drag over canceled");
+		return false;
+	},
+	drop: function(event) {
+		event.preventDefault();
+		console.log("drop canceled");
+		return false;
+	}
+});
 
 App.Router.map(function() {
 	this.resource('schedule', {path: '/schedule/:year'});
-	this.route('classes');
-	this.route('departments');
+	this.route('masterList');
 });
 
 App.IndexRoute = Ember.Route.extend({
@@ -192,24 +219,37 @@ App.ScheduleRoute = Ember.Route.extend({
 	}
 });
 
-App.ClassesRoute = Ember.Route.extend({
+App.MasterListRoute = Ember.Route.extend({
 	model: function() {
 		return classes;
 	}
 });
 
-App.DepartmentsRoute = Ember.Route.extend({
-	renderTemplate: function() {
-		this.render({ outlet: 'sidebar' });
+App.MasterListController = Ember.ArrayController.extend({
+	classes: classes, 
+	removeCourse: function(course) {
+		classes.removeObject(course);
 	},
-	model: function() {
-		return departments;
+	addCourse: function(course) {
+		classes.addObject(course);
 	}
 });
 
-App.ClassesController = Ember.ArrayController.extend({
-	classes: classes,
-	removeClass: function(course) {
-		this.classes.removeObject(course);
+App.TermController = Ember.ObjectController.extend({
+	removeCourse: function(course) {
+		this.get('content.classes').removeObject(course);
+	},
+	addCourse: function(course) {
+		this.get('content.classes').addObject(course);
+		console.log("DragOver!");
+	},
+	handleDragOver: function() {
+		console.log("drag over");
+		return false;
+	},
+	handleDrop: function() {
+		console.log("Dropped!");
+		return false;
 	}
 });
+

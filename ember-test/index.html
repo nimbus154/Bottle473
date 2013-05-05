@@ -10,42 +10,30 @@
 
 	<script type="text/x-handlebars" id="application">
 			<aside>
-				{{ render classes }}
+				{{ render masterList }}
 			</aside>
 			<section>
 				{{ outlet }}
 			</section>
 	</script>
 
-	<script type="text/x-handlebars" id="index_prime">
-			{{#linkTo departments}}Departments{{/linkTo}}
-			{{#linkTo classes}}Classes{{/linkTo}}
+	<script type="text/x-handlebars" id="masterList">
+		<h1>All classes</h1>
+		{{ view App.ClassesView contentbindings="this.classes" }}
 	</script>
 
-	<script type="text/x-handlebars" id="departments">
-				<ul class="departments">
-						{{#each model}}
-							{{render "department" this}}
-						{{/each}}
-				</ul>
-	</script>
-
-	<script type="text/x-handlebars" id="department">
-			<li class="department">{{name}}</li>
-	</script>
-
-	<script type="text/x-handlebars" id="classes">
+	<script type="text/x-handlebars" id="classes" data-template-name="classes">
 		<ul class="classes">
-				{{#each classes}}
-					{{render "class" this}}
-				{{/each}}
+			{{#each classes }}
+			<li class="class">{{view App.ClassView contentBinding="this"}}</li>
+			{{/each}}
 		</ul>
 	</script>
 
-	<script type="text/x-handlebars" id="class">
-			<li class="class" draggable="true" {{action removeClass this on="dragStart"}}>
-					{{dept}}{{number}}: {{name}}
-			</li>
+	<script type="text/x-handlebars" id="class" data-template-name="class">
+		<span class="class">
+				{{dept}}{{number}}: {{name}}
+		</span>
 	</script>
 	<script type="text/x-handlebars" id="schedules">
 		{{#each model}}
@@ -57,14 +45,14 @@
 		<h1>{{year}}</h1>
 		<ul class="terms">
 			{{#each terms}}
-				{{render "term" this}}
+				<li>{{render "term" this}}</li>
 			{{/each}}
 		</ul>
 	</script>
 	
 	<script type="text/x-handlebars" id="term">
 		{{term}}
-		{{render classes classes}}
+		{{ view App.ClassesView contentbindings="this" }}
 	</script>
   <script src="js/libs/jquery-1.9.1.js"></script>
   <script src="js/libs/handlebars-1.0.0-rc.3.js"></script>
