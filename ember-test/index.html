@@ -10,17 +10,14 @@
 
 	<script type="text/x-handlebars" id="application">
 			<aside>
-				{{outlet sidebar}}
+				{{ render classes }}
 			</aside>
 			<section>
-				<h1>Fall 2012</h1>
-				<ul>
-						<li>Drag classes here</li>
-				</ul>
+				{{ outlet }}
 			</section>
 	</script>
 
-	<script type="text/x-handlebars" id="index">
+	<script type="text/x-handlebars" id="index_prime">
 			{{#linkTo departments}}Departments{{/linkTo}}
 			{{#linkTo classes}}Classes{{/linkTo}}
 	</script>
@@ -38,11 +35,11 @@
 	</script>
 
 	<script type="text/x-handlebars" id="classes">
-				<ul class="classes">
-						{{#each model}}
-							{{render "class" this}}
-						{{/each}}
-				</ul>
+		<ul class="classes">
+				{{#each classes}}
+					{{render "class" this}}
+				{{/each}}
+		</ul>
 	</script>
 
 	<script type="text/x-handlebars" id="class">
@@ -50,13 +47,29 @@
 					{{dept}}{{number}}: {{name}}
 			</li>
 	</script>
-	<script type="text/x-handlebars" id="schedule">
-		<h1>{{term}} {{year}}</h1>
-		<ul class="class-list">
-				<li>Drag classes here</li>
-		</ul>
+	<script type="text/x-handlebars" id="schedules">
+		{{#each model}}
+			{{ render schedule this }}
+		{{/each}}
 	</script>
 
+	<script type="text/x-handlebars" id="schedule">
+		<h1>{{year}}</h1>
+		<ul class="terms">
+			{{#each terms}}
+				{{render "term" this}}
+			{{/each}}
+		</ul>
+	</script>
+	
+	<script type="text/x-handlebars" id="term">
+		{{term}}
+		<ul class="terms">
+			{{#each classes}}
+				<li>{{this}}</li>
+			{{/each}}
+		</ul>
+	</script>
   <script src="js/libs/jquery-1.9.1.js"></script>
   <script src="js/libs/handlebars-1.0.0-rc.3.js"></script>
   <script src="js/libs/ember-1.0.0-rc.3.js"></script>
