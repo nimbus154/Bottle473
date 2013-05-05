@@ -1,32 +1,40 @@
-#!/usr/bin/env python
-from bottle import get, post, put, request, response, HTTPResponse
-from bottle import install, run
+import json
+import bottle
+from bottle import route, run, request, abort
+from pymongo import Connection
+from bson import BSON
+from bson import json_util
+ 
+connection = Connection('localhost', 27017) #change this to our database, it is local database right now
+db = connection.mydatabase
+ 
+@route('/departments', method='PUT')    #This is to we can uploaded txt file to database, still need to fix this.
+def put_departments():
+    data = request.body.readline()
+    if not data:
+        abort(400, 'No data received')
+    entity = json.loads(data)
+    try:
+        db['departments'].save(entity)
+    except ValidationError as ve:
+        abort(400, str(ve))
+     
+@route('/departments', method='GET')   #Get list of all departments
+def get_departments():
+    departmentslist = []
+    entity = db['departments'].find()
+    if not entity:
+        abort(404, 'No departments available')
+    for dp in entity:
+        departmentslist.append(dp)
+    return json.dumps(departmentslist, sort_keys=True, indent=4, default=json_util.default)
 
-from bottle_mongo import MongoPlugin
-from bson.objectid import ObjectId
 
-install(MongoPlugin(uri='localhost', db='473', json_mongo=True))
-
-
-@get('/departments/:abbrev')
-def get_deparments_info(abbrev, mongodb):
-
-    '''
-    Input: Deparment Abbreviation
-    Output: Department List
-
-    Queries and returns all the deparments
-    '''
-    return mongodb.departments.find({'abbrev': ObjectId(abbrev) })
+@route('/departments/:abbrev', method='GET')  #Get department information based on department abbreviation
+def get_departments_info(abbrev):
+    entity = db['departments'].find_one({'abbrev': abbrev})
+    if not entity:
+        abort(404, 'No department information available')
+    return json.dumps(entity, sort_keys=True, indent=4, default=json_util.default)
     
-@get('/departments')
-def get_deparments(mongodb):
-    '''
-    Input:
-    Output: Department List
-
-    Queries and returns all the deparments
-    '''
-    return mongodb.departments.find()
-
-run(host='0.0.0.0', port=8080, debug=True, reloader=True)
+run(host='localhost', port=8080)
