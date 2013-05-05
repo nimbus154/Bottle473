@@ -5,10 +5,10 @@ from pymongo import Connection
 from bson import BSON
 from bson import json_util
  
-connection = Connection('localhost', 27017)
+connection = Connection('localhost', 27017) #change this to our database, it is local database right now
 db = connection.mydatabase
  
-@route('/departments', method='PUT')
+@route('/departments', method='PUT')    #This is to we can uploaded txt file to database, still need to fix this.
 def put_departments():
     data = request.body.readline()
     if not data:
@@ -19,7 +19,7 @@ def put_departments():
     except ValidationError as ve:
         abort(400, str(ve))
      
-@route('/departments', method='GET')
+@route('/departments', method='GET')   #Get list of all departments
 def get_departments():
     departmentslist = []
     entity = db['departments'].find()
@@ -30,7 +30,7 @@ def get_departments():
     return json.dumps(departmentslist, sort_keys=True, indent=4, default=json_util.default)
 
 
-@route('/departments/:abbrev', method='GET')
+@route('/departments/:abbrev', method='GET')  #Get department information based on department abbreviation
 def get_departments_info(abbrev):
     entity = db['departments'].find_one({'abbrev': abbrev})
     if not entity:
