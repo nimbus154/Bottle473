@@ -32,6 +32,14 @@ def register():
     # Hash password with sha 224 prior to storing
     hashedpw = hashlib.sha224(password).hexdigest()
     
+    # Check to see if username is already taken
+    checkUser = Users.objects(username = user)
+    
+    if( checkUser.count() != 0 ):
+        response.content_type = 'application/json'
+        response.status = '400 username taken'
+        return     
+    
     # Create a new instance of user and save it to the database
     newUser = Users()
     newUser.username = user
