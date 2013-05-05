@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Ember Starter Kit</title>
+  <link rel="stylesheet" href="css/normalize.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+	<script type="text/x-handlebars" id="application">
+			<aside>
+				{{outlet sidebar}}
+			</aside>
+			<section>
+				<h1>Fall 2012</h1>
+				<ul>
+						<li>Drag classes here</li>
+				</ul>
+			</section>
+	</script>
+
+	<script type="text/x-handlebars" id="index">
+			{{#linkTo departments}}Departments{{/linkTo}}
+			{{#linkTo classes}}Classes{{/linkTo}}
+	</script>
+
+	<script type="text/x-handlebars" id="departments">
+				<ul class="departments">
+						{{#each model}}
+							{{render "department" this}}
+						{{/each}}
+				</ul>
+	</script>
+
+	<script type="text/x-handlebars" id="department">
+			<li class="department">{{name}}</li>
+	</script>
+
+	<script type="text/x-handlebars" id="classes">
+				<ul class="classes">
+						{{#each model}}
+							{{render "class" this}}
+						{{/each}}
+				</ul>
+	</script>
+
+	<script type="text/x-handlebars" id="class">
+			<li class="class" draggable="true" {{action removeClass this on="dragStart"}}>
+					{{dept}}{{number}}: {{name}}
+			</li>
+	</script>
+	<script type="text/x-handlebars" id="schedule">
+		<h1>{{term}} {{year}}</h1>
+		<ul class="class-list">
+				<li>Drag classes here</li>
+		</ul>
+	</script>
+
+  <script src="js/libs/jquery-1.9.1.js"></script>
+  <script src="js/libs/handlebars-1.0.0-rc.3.js"></script>
+  <script src="js/libs/ember-1.0.0-rc.3.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>
