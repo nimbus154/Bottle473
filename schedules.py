@@ -5,8 +5,6 @@ from bottle import install, run
 from bottle_mongo import MongoPlugin
 from bson.objectid import ObjectId
 
-# from pprint import pprint
-
 install(MongoPlugin(uri='localhost', db='473', json_mongo=True))
 
 secret_key = 84252450
@@ -26,9 +24,9 @@ def new_schedule(username, mongodb):
     session_user = request.get_cookie('sessions', secret=secret_key)
     if session_user:    # Do your thing, man
         # Mongo cursor with single document containing only _id
-        user = mongodb.users.find_one({'username': username}, {'_id': 1, 'session_id': 1})
+        user = mongodb.users.find_one({'username': username}, {'_id': 1})
         # Create new schedule with user: ObjectId() of :username
-        sid = mongodb.schedules.insert({'user': user['_id']})
+        sid = mongodb.schedules.insert({'user_id': user['_id']})
         # Set response headers
         response.content_type = 'application/json'
         response.status = 201
@@ -50,9 +48,7 @@ def update_schedule(username, sid, mongodb):
     # Check session cookie. Returns username if matched; otherwise, None.
     session_user = request.get_cookie('sessions', secret=secret_key)
     if session_user:    # Do your thing, man.
-        for key,val in request.json.items():
-            print '%s: %s' % (key, val)
-        # mongodb.schedules.update({'_id': ObjectId(sid)}, {'$set': request.json})
+        mongodb.schedules.update({'_id': ObjectId(sid)}, {'$set': request.json})
         response.status = 204
         response.headers['location'] = '/api/users/%s/schedules/%s' % (username, sid)
         return
