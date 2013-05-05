@@ -5,9 +5,12 @@ from bottle import install, run
 from bottle_mongo import MongoPlugin
 from bson.objectid import ObjectId
 
+from pprint import pprint
+
 install(MongoPlugin(uri='localhost', db='473', json_mongo=True))
 
 secret_key = 84252450
+semesters = ['SPRING', 'SUMMER', 'FALL', 'WINTER']
 
 @post('/api/users/:username/schedules')
 def new_schedule(username, mongodb):
@@ -47,8 +50,9 @@ def update_schedule(username, sid, mongodb):
     # Check session cookie. Returns username if matched; otherwise, None.
     session_user = request.get_cookie('sessions', secret=secret_key)
     if session_user:    # Do your thing, man.
-        mongodb.schedules.update({'_id': ObjectId(sid)},
-                                 {'$set': request.json})
+        for key,val in request.json.items():
+            print '%s: %s' % (key, val)
+        # mongodb.schedules.update({'_id': ObjectId(sid)}, {'$set': request.json})
         response.status = 204
         response.headers['location'] = '/api/users/%s/schedules/%s' % (username, sid)
         return
@@ -63,6 +67,14 @@ def get_schedule(username, sid, mongodb):
 
     Queries and returns the schedule document with the given id.
     '''
-    return mongodb.schedules.find_one({'_id': ObjectId(sid)})
+    user = mongodb.users.find_one({'username': username})
+    if user:
+        try:
+            s = mongodb.schedules.find_one({'_id': ObjectId(sid), 'user_id': user['_id']})
+            return s if s else \
+                HTTPResponse(status=404, output="User %s does not own schedule %s" % (username,sid))
+        except:
+            return HTTPResponse(status=400, output="Not a valid schedule id.")
+    return HTTPResponse(status=400, output="Not a valid user.")
 
 run(host='0.0.0.0', port=8080, debug=True, reloader=True)
