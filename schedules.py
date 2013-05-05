@@ -9,7 +9,7 @@ install(MongoPlugin(uri='localhost', db='473', json_mongo=True))
 
 secret_key = 84252450
 
-@post('/users/:username/schedules')
+@post('/api/users/:username/schedules')
 def new_schedule(username, mongodb):
     '''
     Input: json empty document {}
@@ -29,12 +29,12 @@ def new_schedule(username, mongodb):
         # Set response headers
         response.content_type = 'application/json'
         response.status = 201
-        response.location = '/users/%s/schedules/%s' % (username, str(sid))
+        response.headers['location'] = '/api/users/%s/schedules/%s' % (username, str(sid))
         return
     else:   # Access denied
         return HTTPResponse(status=401, output="Yeah, if you could log in, that'd be great.")
 
-@put('/users/:username/schedules/:sid')
+@put('/api/users/:username/schedules/:sid')
 def update_schedule(username, sid, mongodb):
     '''
     Input: json schedule document with updates
@@ -50,12 +50,12 @@ def update_schedule(username, sid, mongodb):
         mongodb.schedules.update({'_id': ObjectId(sid)},
                                  {'$set': request.json})
         response.status = 204
-        response.location = '/users/%s/schedules/%s' % (username, sid)
+        response.headers['location'] = '/api/users/%s/schedules/%s' % (username, sid)
         return
     else:   # Access Denied
         return HTTPResponse(status=401, output="Yeah, if you could log in, that'd be great")
 
-@get('/users/:username/schedules/:sid')
+@get('/api/users/:username/schedules/:sid')
 def get_schedule(username, sid, mongodb):
     '''
     Input: schedule id, sid
