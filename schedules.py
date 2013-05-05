@@ -5,10 +5,37 @@ from bottle import install, run
 from bottle_mongo import MongoPlugin
 from bson.objectid import ObjectId
 
+import validictory
+
 install(MongoPlugin(uri='localhost', db='473', json_mongo=True))
 
 secret_key = 84252450
 semesters = ['SPRING', 'SUMMER', 'FALL', 'WINTER']
+# Schema for json Schedule object
+schedule_schema = {
+    'type': 'object',
+    'properties': {
+        'semester': {'type': 'string','enum': semesters, 'required': False},
+        'year': {'type': 'integer', 'required': False},
+        'user_id': {'type': 'any', 'required': False},
+        'courses': {
+            'type': 'array',
+            'items': [
+                {
+                    'type': 'object',
+                    'properties': {
+                        'name': {'type': 'string'},
+                        'number': {'type': 'integer'},
+                        'dept': {'type': 'string'},
+                        'description': {'type': 'string'},
+                    },
+                },
+            ],
+            'additionalItems': True,
+            'required': False
+        }
+    }
+}
 
 @post('/api/users/:username/schedules')
 def new_schedule(username, mongodb):
@@ -48,7 +75,19 @@ def update_schedule(username, sid, mongodb):
     # Check session cookie. Returns username if matched; otherwise, None.
     session_user = request.get_cookie('sessions', secret=secret_key)
     if session_user:    # Do your thing, man.
-        mongodb.schedules.update({'_id': ObjectId(sid)}, {'$set': request.json})
+        try:
+            # Validate json data from request.
+            validictory.validate(request.json,schedule_schema)
+            # Update schedule
+            if 'courses' not in request.json.keys():
+                # Clears all courses from schedule document if courses is
+                # not in the json object in the request.
+                request.json['courses'] = []
+            mongodb.schedules.update({'_id': ObjectId(sid)}, {'$set': request.json})
+        except ValueError, error:
+            # Return 400 status and error from validation.
+            return HTTPResponse(status=400, output=error)
+
         response.status = 204
         response.headers['location'] = '/api/users/%s/schedules/%s' % (username, sid)
         return
