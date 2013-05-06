@@ -1,0 +1,80 @@
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="style.css" />
+		<title>Class Planner</title>
+	</head>
+	<body>
+		<script type="text/x-handlebars" id="application">
+			<div id='container'>
+				<div id='header_bar'>
+					<span id='account_button'>Account</span>
+					<span id='secondary_buttons'>
+						<ul>
+							<li id='username'>Username</li>
+							<li id='logout'><a id='logout_text' href='/logout'>Logout</a></li>
+						</ul>
+					</span>
+				</div>
+				
+				<div id='schedule_container'>
+					<div id='schedule_header'>
+						<div id='year_select'>
+							<ul>
+								<li>2013</li>
+								<li>2014</li>
+								<li class='selected'>2015</li>
+								<li>2016</li>
+								<li>2017</li>
+								<li>2018</li>
+								<li>2019</li>
+								<li>2020</li>
+								<li>2021</li>
+								<li class='last'>2022</li>
+							</ul>
+						</div>
+					</div>
+					<div id='schedule_block'>
+						{{ outlet }}
+					</div>
+				</div>
+				<div id='class_list'>
+				
+				</div>
+			
+			
+			</div>
+		</script>
+		<script type="text/x-handlebars" id="class" data-template-name="class">
+			<div id='class_object'>
+				<ul>
+					<li id='class_name'>
+						<span class='class_name_text'>
+							{{dept}}{{number}}
+						</span>
+					</li>
+					<li id='class_info'>
+						<span class='class_info_text'>
+							Info
+						</span>
+					</li>
+					<li id='class_delete'><a href=''>X</a></li>
+				</ul>
+			</div>
+		</script>
+		<script type="text/x-handlebars" id="schedule">
+			{{#each terms}}
+			<div {{bindAttr id='term'}} class='student_schedule'>
+					<div id='schedule_block_header'></div>
+					{{#each this.classes }}
+						{{ render class this }}
+					{{/each}}
+					<!-- create div class objects here -->
+				</div>
+			{{/each}}
+		</script>
+		<script src="js/libs/jquery-1.9.1.js"></script>
+		<script src="js/libs/handlebars-1.0.0-rc.3.js"></script>
+		<script src="js/libs/ember-1.0.0-rc.3.js"></script>
+		<script src="js/app.js"></script>
+	</body>
+</html>

@@ -24,7 +24,7 @@ var schedules = [
 		year: 2012,
 		terms: [
 			App.Term.create({
-				term: 'Fall',
+				term: 'fall',
 				classes: [ 
 					App.Class.create({
 						name: 'Python',
@@ -47,7 +47,7 @@ var schedules = [
 				]
 			}),
 			App.Term.create({
-				term: 'Spring',
+				term: 'spring',
 				classes: [ 
 					App.Class.create({
 						name: 'Calculus II',
@@ -64,8 +64,38 @@ var schedules = [
 				]
 			}),
 			App.Term.create({
-				term: 'Summer',
-				classes: [ 'math365', 'cpsc4eva']
+				term: 'summer',
+				classes: [ 
+					App.Class.create({
+						name: 'Calculus I',
+						number: '150a',
+						dept: 'math',
+						prereqs: []
+					}),
+					App.Class.create({
+						name: 'Math Structures I',
+						number: '270a',
+						dept: 'math',
+						prereqs: []
+					})
+				]
+			}),
+			App.Term.create({
+				term: 'winter',
+				classes: [ 
+					App.Class.create({
+						name: 'Intro to Programming',
+						number: '121',
+						dept: 'cpsc',
+						prereqs: []
+					}),
+					App.Class.create({
+						name: 'Ethics',
+						number: '311',
+						dept: 'cpsc',
+						prereqs: []
+					})
+				]
 			})
 		]
 	}),
@@ -126,6 +156,23 @@ var schedules = [
 						number: 335,
 						dept: 'cpsc',
 						prereqs: ['cpsc131']
+					})
+				]
+			}),
+			App.Term.create({
+				term: 'Winter',
+				classes: [ 
+					App.Class.create({
+						name: 'Intro to Programming',
+						number: '121',
+						dept: 'cpsc',
+						prereqs: []
+					}),
+					App.Class.create({
+						name: 'Ethics',
+						number: '311',
+						dept: 'cpsc',
+						prereqs: []
 					})
 				]
 			})
@@ -237,7 +284,7 @@ App.MasterListController = Ember.ArrayController.extend({
 	}
 });
 
-App.TermController = Ember.ObjectController.extend({
+App.ScheduleController = Ember.ObjectController.extend({
 	removeCourse: function(course) {
 		this.get('content.classes').removeObject(course);
 	},
