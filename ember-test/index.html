@@ -19,15 +19,17 @@
 
 	<script type="text/x-handlebars" id="masterList">
 		<h1>All classes</h1>
-		{{ view App.ClassesView contentbindings="this.classes" }}
+		{{ render classList this.classes }}
 	</script>
 
-	<script type="text/x-handlebars" id="classes" data-template-name="classes">
-		<ul class="classes">
-			{{#each classes }}
+	<script type="text/x-handlebars" id="classList">
+		{{#view App.ClassListView}}
+		<ul class="class-list">
+			{{#each this}}
 			<li class="class">{{view App.ClassView contentBinding="this"}}</li>
 			{{/each}}
 		</ul>
+		{{/view}}
 	</script>
 
 	<script type="text/x-handlebars" id="class" data-template-name="class">
@@ -52,7 +54,7 @@
 	
 	<script type="text/x-handlebars" id="term">
 		{{term}}
-		{{ view App.ClassesView contentbindings="this" }}
+		{{ render classList this.classes }}
 	</script>
   <script src="js/libs/jquery-1.9.1.js"></script>
   <script src="js/libs/handlebars-1.0.0-rc.3.js"></script>
