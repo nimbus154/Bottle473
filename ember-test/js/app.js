@@ -172,37 +172,45 @@ var departments = [
 ];
 
 // thanks to http://jsfiddle.net/ud3323/5uX9H/ for drag n' drop tips
-App.ClassesView = Ember.View.extend({
-	templateName: 'classes',
+App.ClassView = Ember.View.extend({
+	templateName: 'class',
 	attributeBindings: 'draggable',
 	draggable: 'true',
 	dragStart: function(event) {
-		console.log("Drag start");
+		var dataTransfer = event.dataTransfer;
+		var course = this.get('context');
+		dataTransfer.setData('application/json', JSON.stringify(course));
 	}
 });
 
-App.ClassView = Ember.View.extend({
-	templateName: 'class',
-	dragEnter: function(event) {
-		event.preventDefault();
-		console.log("drag enter canceled");
-		return false;
-	},
+App.ClassListView = Ember.View.extend({
 	dragOver: function(event) {
 		event.preventDefault();
-		console.log("drag over canceled");
 		return false;
 	},
 	drop: function(event) {
 		event.preventDefault();
-		console.log("drop canceled");
+		var course = App.Class.create(
+						JSON.parse(
+							event.dataTransfer.getData('application/json')
+						)
+					);
+		this.get('controller').send('addCourse', course);
 		return false;
+	}
+});
+
+App.ClassController = Ember.ObjectController.extend({
+	course: null,
+	tag: function(course) {
+		this.set('course', course);
+		console.log('Controller content');
+		console.log(this.get('course'));
 	}
 });
 
 App.Router.map(function() {
 	this.resource('schedule', {path: '/schedule/:year'});
-	this.route('masterList');
 });
 
 App.IndexRoute = Ember.Route.extend({
@@ -216,12 +224,6 @@ App.ScheduleRoute = Ember.Route.extend({
 		return schedules.find(function(item) {
 			return item.year == params.year;
 		});
-	}
-});
-
-App.MasterListRoute = Ember.Route.extend({
-	model: function() {
-		return classes;
 	}
 });
 
@@ -241,15 +243,5 @@ App.TermController = Ember.ObjectController.extend({
 	},
 	addCourse: function(course) {
 		this.get('content.classes').addObject(course);
-		console.log("DragOver!");
-	},
-	handleDragOver: function() {
-		console.log("drag over");
-		return false;
-	},
-	handleDrop: function() {
-		console.log("Dropped!");
-		return false;
 	}
 });
-
