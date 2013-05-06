@@ -107,7 +107,6 @@ body{
 	float:left;
 	width:75px;
 	height:30px;
-	color:#ccc;
 	padding-top:10px;
 	border-left:1px solid #ccc;
 }
@@ -115,7 +114,11 @@ body{
 	-webkit-box-shadow: 0px 0px 2px 2px #4bbaeb;
 	box-shadow: 0px 0px 2px 2px #4bbaeb; 
 }
-#year_select .selected{
+#year_select a {
+	text-decoration: none;
+	color:#ccc;
+}
+#year_select .active{
 	display:block;
 	background-color:#ccc;
 	color:#fff;

@@ -19,9 +19,10 @@ App.Class = Ember.Object.extend({
 	prereqs: []
 });
 
-var schedules = [
+App.schedules = [
 	App.Schedule.create({
 		year: 2012,
+		id: 2012,
 		terms: [
 			App.Term.create({
 				term: 'fall',
@@ -100,6 +101,7 @@ var schedules = [
 		]
 	}),
 	App.Schedule.create({
+		id: 2013,
 		year: 2013,
 		terms: [
 			App.Term.create({
@@ -257,18 +259,27 @@ App.ClassController = Ember.ObjectController.extend({
 });
 
 App.Router.map(function() {
-	this.resource('schedule', {path: '/schedule/:year'});
+	this.resource('schedule', {path: '/schedule/:schedule_id'});
 });
 
 App.IndexRoute = Ember.Route.extend({
 	renderTemplate: function() {
-		this.transitionTo('schedule', new Date().getFullYear());
+		thisYear = new Date().getFullYear();
+		var startingSchedule = App.schedules.find(function(item) {
+			return item.year == thisYear;
+		});
+		this.transitionTo('schedule', startingSchedule);
 	}
 });
 
 App.ScheduleRoute = Ember.Route.extend({
+	setupController: function(controller, model) {
+		console.log("setup controller");
+		console.log(model);
+		controller.set('content', model);
+	},
 	model: function(params) {
-		return schedules.find(function(item) {
+		return App.schedules.find(function(item) {
 			return item.year == params.year;
 		});
 	}
