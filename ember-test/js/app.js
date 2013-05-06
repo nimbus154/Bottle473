@@ -172,30 +172,35 @@ var departments = [
 ];
 
 // thanks to http://jsfiddle.net/ud3323/5uX9H/ for drag n' drop tips
-App.ClassesView = Ember.View.extend({
-	templateName: 'classes',
+App.ClassView = Ember.View.extend({
+	templateName: 'class',
 	attributeBindings: 'draggable',
 	draggable: 'true',
 	dragStart: function(event) {
 		console.log("Drag start");
+
+		var dataTransfer = event.originalEvent.dataTransfer;
+		dataTransfer.setData('application/json', JSON.stringify(this.get('context')));
+		console.log(dataTransfer);
 	}
 });
 
-App.ClassView = Ember.View.extend({
-	templateName: 'class',
+App.ClassesView = Ember.View.extend({
+	templateName: 'classes',
 	dragEnter: function(event) {
 		event.preventDefault();
-		console.log("drag enter canceled");
 		return false;
 	},
 	dragOver: function(event) {
 		event.preventDefault();
-		console.log("drag over canceled");
 		return false;
 	},
 	drop: function(event) {
 		event.preventDefault();
-		console.log("drop canceled");
+		console.log("drop context");
+		var course = App.Class.create(JSON.parse(event.dataTransfer.getData('application/json')));
+		
+		this.get('controller').send('addCourse', course);
 		return false;
 	}
 });
@@ -242,14 +247,6 @@ App.TermController = Ember.ObjectController.extend({
 	addCourse: function(course) {
 		this.get('content.classes').addObject(course);
 		console.log("DragOver!");
-	},
-	handleDragOver: function() {
-		console.log("drag over");
-		return false;
-	},
-	handleDrop: function() {
-		console.log("Dropped!");
-		return false;
 	}
 });
 
