@@ -5,7 +5,7 @@ from pymongo import Connection
 from bson import BSON
 from bson import json_util
  
-connection = Connection('localhost', 27017)
+connection = Connection('localhost', 27017)  #need to modify for your database
 db = connection.mydatabase
 
      
