@@ -23,7 +23,7 @@ classfile.close()
 
 deptfile = open("DepartmentList.md")
 
-for line in classfile :
+for line in deptfile :
    Departments = {}
    
    dept = line.split(" ",2)
