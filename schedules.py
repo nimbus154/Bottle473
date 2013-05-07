@@ -7,7 +7,7 @@ from bson.objectid import ObjectId
 
 import validictory
 
-install(MongoPlugin(uri='localhost', db='473', json_mongo=True))
+install(MongoPlugin(uri='localhost', db='mydatabase', json_mongo=True))
 
 secret_key = 84252450
 semesters = ['SPRING', 'SUMMER', 'FALL', 'WINTER']

@@ -2,7 +2,7 @@ import datetime
 from mongoengine import Document, connect
 from mongoengine import StringField, ListField, IntField, ReferenceField
 
-DB_NAME = '473'
+DB_NAME = 'mydatabase'
 
 class Users(Document):
     username = StringField(required=True)
