@@ -27,8 +27,8 @@ for line in classfile :
    Departments = {}
    
    dept = line.split(" ",2)
-   courses['name'] = dept[0]
-   courses['abbrev'] =  dept[1]
+   Departments['name'] = dept[0]
+   Departments['abbrev'] =  dept[1]
    db['Department'].save(Departments)
 
 deptfile.close()
