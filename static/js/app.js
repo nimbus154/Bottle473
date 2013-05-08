@@ -2,10 +2,20 @@ var App = Ember.Application.create({
 	LOG_TRANSITIONS: true
 });
 
+App.Store = DS.Store.extend({
+    revision: 12
+})
+
+
+App.Department = DS.Model.extend({
+    name: DS.attr('string')
+});
+
 App.Schedule = Ember.Object.extend({
 	year: null,
 	terms: [ ]
 });
+
 
 App.Term = Ember.Object.extend({
 	term: null,
@@ -22,7 +32,6 @@ App.Class = Ember.Object.extend({
 App.schedules = [
 	App.Schedule.create({
 		year: 2012,
-		id: 2012,
 		terms: [
 			App.Term.create({
 				term: 'fall',
@@ -101,11 +110,10 @@ App.schedules = [
 		]
 	}),
 	App.Schedule.create({
-		id: 2013,
 		year: 2013,
 		terms: [
 			App.Term.create({
-				term: 'Fall',
+				term: 'fall',
 				classes: [ 
 					App.Class.create({
 						name: 'Software Engineering',
@@ -128,7 +136,7 @@ App.schedules = [
 				]
 			}),
 			App.Term.create({
-				term: 'Spring',
+				term: 'spring',
 				classes: [ 
 					App.Class.create({
 						name: 'Software Design',
@@ -151,7 +159,7 @@ App.schedules = [
 				]
 			}),
 			App.Term.create({
-				term: 'Summer',
+				term: 'summer',
 				classes: [
 					App.Class.create({
 						name: 'Algorithms',
@@ -162,7 +170,7 @@ App.schedules = [
 				]
 			}),
 			App.Term.create({
-				term: 'Winter',
+				term: 'winter',
 				classes: [ 
 					App.Class.create({
 						name: 'Intro to Programming',
@@ -249,7 +257,7 @@ App.TermView = Ember.View.extend({
 });
 
 App.Router.map(function() {
-	this.resource('schedule', {path: '/schedule/:schedule_id'});
+	this.resource('schedule', {path: '/schedule/:year'});
 });
 
 App.IndexRoute = Ember.Route.extend({
@@ -270,7 +278,10 @@ App.ScheduleRoute = Ember.Route.extend({
 		return App.schedules.find(function(item) {
 			return item.year == params.year;
 		});
-	}
+	},
+    serialize: function(model) {
+        return { 'year': model.year };
+    }
 });
 
 App.ClassCollector = Ember.Mixin.create({
