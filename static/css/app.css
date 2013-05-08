@@ -1,0 +1,235 @@
+body{
+	padding:0;
+	margin:0;
+	font-family:Helvetica, Arial, sans-serif;
+	font-size:1em;
+}
+#container{
+	width:1024px;
+	height:768px;
+	padding:0px;
+	margin:0 auto;
+	border-bottom:1px solid #000;
+	border-right:1px solid #000;
+	border-left:1px solid #000;
+}
+#header_bar{
+	display:block;
+	width:1024px;
+	height:40px;
+	background-image:url('images/header_bar_bg.png');
+	background-repeat:repeat-x;
+	
+}
+#account_button{
+	display:block;
+	float:left;
+	color:#fff;
+	font-size:1.5em;
+	padding-top:5px;
+	padding-left:5px;
+	text-shadow: -1px 0 #000, 0 1px #000, 1px 0 #000, 0 -1px #000;
+}
+#secondary_buttons{
+	display:block;
+	float:right;
+	color:#fff;
+}
+#secondary_buttons ul{
+	display:block;
+	list-style:none;
+}
+#secondary_buttons li{
+	display:block;
+	float:left;
+	font-size:1.5em;
+}
+#username{
+	display:block;
+	margin-top:-10px;
+	text-shadow: -1px 0 #000, 0 1px #000, 1px 0 #000, 0 -1px #000;
+}
+#logout{
+	display:block;
+	height:40px;
+	width:125px;
+	background-image:url('images/logout_button.png');
+	background-repeat:no-repeat;
+	margin-left:10px;
+	margin-top:-16px;
+	text-align:center;
+}
+#logout_text{
+	display:block;
+	padding-top:5px;
+	color:#000;
+	text-decoration:none;
+}
+#class_list{
+	display:block;
+	float:right;
+	width:200px;
+	height:726px;
+	border-left:1px solid #000;
+}
+#schedule_container{
+	display:block;
+	float:left;
+	width:800px;
+	height:650px;
+	border:1px solid #000;
+	margin-top:30px;
+	margin-left:5px;
+}
+#schedule_header{
+	margin-left:-5px;
+	margin-top:-10px;
+	display:block;
+	width:810px;
+	height:40px;
+	background-image:url('images/header_bar_bg.png');
+	background-repeat:repeat-x;
+	border:1px solid #ccc;
+}
+#year_select{
+	display:block;
+	text-align:center;
+	width:810px;
+	margin-left:-41px;
+}
+#year_select ul{
+	display:block;
+	list-style:none;
+	width:810px;
+	margin-top:-16px;
+}
+#year_select li{
+	float:left;
+	width:75px;
+	height:30px;
+	padding-top:10px;
+	border-left:1px solid #ccc;
+}
+#year_select li:hover{
+	-webkit-box-shadow: 0px 0px 2px 2px #4bbaeb;
+	box-shadow: 0px 0px 2px 2px #4bbaeb; 
+}
+#year_select a {
+	text-decoration: none;
+	color:#ccc;
+}
+#year_select .active{
+	display:block;
+	background-color:#ccc;
+	color:#fff;
+	text-shadow: -1px 0 #000, 0 1px #000, 1px 0 #000, 0 -1px #000;
+}
+#year_select .last{
+	display:block;
+	border-right:1px solid #ccc;
+}
+#schedule_block .student_schedule{
+	display:block;
+	float:left;
+	width:375px;
+	height:285px;
+	margin-left:15px;
+	margin-top:20px;
+	border:1px solid #000;
+}
+#spring{
+	background-image:url('images/spring.png');			
+}
+#summer{
+	background-image:url('images/summer.png');			
+}
+#fall{
+	background-image:url('images/fall.png');
+}
+#winter{
+	background-image:url('images/winter.png');			
+}
+#schedule_block_header{
+	display:block;
+	margin-left:-5px;
+	margin-top:-10px;
+	width:385px;
+	height:15px;
+	background-color:#eee;
+	border:1px solid #000;
+}
+#class_object{
+	display:block;
+	height:35px;
+	width:362px;
+	border:1px solid #000;
+	margin-top:5px;
+	margin-left:5px;
+}
+#class_object:hover{
+	-webkit-box-shadow: 0px 0px 2px 2px #4bbaeb;
+	box-shadow: 0px 0px 2px 2px #4bbaeb; 
+}
+#class_object ul{
+	display:block;
+	list-style:none;
+}
+#class_name{
+	display:block;
+	float:left;
+	width:150px;
+	height:35px;
+	background-color:#000;
+	color:#fff;
+	margin-top:-16px;
+	margin-left:-40px;
+	text-align:center;
+	-webkit-border-radius: 0px 8px 8px 0px;
+	border-radius: 0px 8px 8px 0px;
+	z-index:1;
+	position: relative;
+}
+#class_name .class_name_text{
+	display:block;
+	font-size:1.5em;
+	padding-top:5px;
+}
+#class_info{
+	display:block;
+	float:left;
+	width:75px;
+	height:35px;
+	background-color:#999;
+	border-right:1px solid #000;
+	color:#000;
+	text-align:center;
+	margin-left:-5px;
+	margin-top:-16px;
+	z-index:2;
+}
+#class_info .class_info_text{
+	display:block;
+	font-size:1.25em;
+	padding-top:7px;
+}
+#class_delete{
+	display:block;
+	float:right;
+	width:35px;
+	height:35px;
+	border-left:1px solid #000;
+	margin-top:-16px;
+	text-align:center;
+}
+#class_delete button {
+	display:block;
+	font-size:1.5em;
+	color:#ff0000;
+	text-decoration:none;
+	margin-top:5px;
+	background: none;
+	border: none;
+}
+#class_delete button:hover {
+	font-weight: bold;
+}
