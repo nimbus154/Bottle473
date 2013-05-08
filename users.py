@@ -1,4 +1,4 @@
-from bottle import get, route, request, post, template, redirect, response, Bottle
+from bottle import get, route, request, post, template, redirect, response, Bottle, delete
 
 from models import Users
 
@@ -55,7 +55,7 @@ def register():
     return
     
     
-@route('/api/sessions/<user>', method='POST')
+@route('/api/sessions/<user>', method='DELETE')
 def logout(user):
     # Test script from terminal:
     # http post localhost:8081/api/sessions/David     
