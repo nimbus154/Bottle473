@@ -226,14 +226,14 @@ body{
 }
 #class_delete button {
 	display:block;
+    width: 100%;
 	font-size:1.5em;
-	color:#ff0000;
-	text-decoration:none;
 	margin-top:5px;
 	background: none;
 	border: none;
+	color:red;
 }
 #class_delete button:hover {
-	font-weight: bold;
     color: white;
+    font-weight: bold;
 }
