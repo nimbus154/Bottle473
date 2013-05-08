@@ -221,6 +221,9 @@ body{
 	margin-top:-16px;
 	text-align:center;
 }
+#class_delete:hover {
+    background: red;
+}
 #class_delete button {
 	display:block;
 	font-size:1.5em;
@@ -232,4 +235,5 @@ body{
 }
 #class_delete button:hover {
 	font-weight: bold;
+    color: white;
 }

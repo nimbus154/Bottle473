@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Class Planner</title>
+	</head>
+	<body>
+        <!-- we will use javascript for this -->
+        <h1>Log in</h1>
+        <form action="/api/sessions" method="post">
+            <label for="username">Username:</label>
+            <input type="text" name="username" />
+            <label for="password">Password:</label>
+            <input type="text" name="password" />
+            <input type="submit" value="Log in!" />
+        </form>
+        <h1>Register</h1>
+        <form action="/api/sessions" method="post">
+            <label for="username">Username:</label>
+            <input type="text" name="username" />
+            <label for="password">Password:</label>
+            <input type="text" name="password" />
+            <label for="confirm-password">Confirm Password:</label>
+            <input type="text" name="confirm-password" />
+            <input type="submit" value="Register!" />
+        </form>
+	</body>
+</html>
