@@ -2,6 +2,10 @@ from bottle import run, debug
 
 import base
 import users
+import schedules
+import departments
+import users
+import app
 
 DEBUG = True
 

@@ -29,6 +29,3 @@ def get_departments_info(abbrev):
     for cl in entity:
        classlist.append(cl)
     return json.dumps(classlist, sort_keys=True, indent=4, default=json_util.default)
-    
-run(host='localhost', port=8080)
-

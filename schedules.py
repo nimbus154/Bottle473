@@ -126,4 +126,3 @@ def get_all_schedules(username, mongodb):
         return mongodb.schedules.find({'user_id': user['_id']})
     return HTTPResponse(status=400, output="Not a valid user.")
 
-run(host='0.0.0.0', port=8080, debug=True, reloader=True)
