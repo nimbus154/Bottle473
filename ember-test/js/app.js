@@ -232,8 +232,8 @@ App.ClassView = Ember.View.extend({
 	}
 });
 
-App.ClassListView = Ember.View.extend({
-	templateName: 'classList',
+App.TermView = Ember.View.extend({
+	templateName: 'term',
 	dragOver: function(event) {
 		event.preventDefault();
 		return false;

@@ -50,11 +50,7 @@
 			{{/each}}
 		</script>
 
-		<script type="text/x-handlebars" id="term">
-					{{ view App.ClassListView }}
-		</script>
-
-		<script type="text/x-handlebars" id="classList" data-template-name="classList">
+		<script type="text/x-handlebars" id="term" data-template-name="term">
 			<div {{bindAttr id='term'}} class='student_schedule'>
 				<div id='schedule_block_header'></div>
 				{{#each classes}}{{! this = list of classes }}
@@ -78,7 +74,7 @@
 							Info
 						</span>
 					</li>
-					<li id='class_delete'><a href=''>X</a></li>
+					<li id='class_delete'><button {{ action remove this }}>X</button></li>
 				</ul>
 			</div>
 		</script>
