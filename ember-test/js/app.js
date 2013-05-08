@@ -227,34 +227,24 @@ App.ClassView = Ember.View.extend({
 	draggable: 'true',
 	dragStart: function(event) {
 		var dataTransfer = event.dataTransfer;
-		var course = this.get('context');
+		var course = this.get('context'); // the item being dragged
 		dataTransfer.setData('application/json', JSON.stringify(course));
 	}
 });
 
 App.ClassListView = Ember.View.extend({
+	templateName: 'classList',
 	dragOver: function(event) {
 		event.preventDefault();
 		return false;
 	},
 	drop: function(event) {
 		event.preventDefault();
-		var course = App.Class.create(
-						JSON.parse(
-							event.dataTransfer.getData('application/json')
-						)
-					);
-		this.get('controller').send('addCourse', course);
+		var rawData = event.dataTransfer.getData('application/json');
+		var course = App.Class.create(JSON.parse(rawData));
+		console.log(this.get('controller'));
+		this.get('controller').add(course);
 		return false;
-	}
-});
-
-App.ClassController = Ember.ObjectController.extend({
-	course: null,
-	tag: function(course) {
-		this.set('course', course);
-		console.log('Controller content');
-		console.log(this.get('course'));
 	}
 });
 
@@ -274,8 +264,6 @@ App.IndexRoute = Ember.Route.extend({
 
 App.ScheduleRoute = Ember.Route.extend({
 	setupController: function(controller, model) {
-		console.log("setup controller");
-		console.log(model);
 		controller.set('content', model);
 	},
 	model: function(params) {
@@ -285,21 +273,42 @@ App.ScheduleRoute = Ember.Route.extend({
 	}
 });
 
-App.MasterListController = Ember.ArrayController.extend({
-	classes: classes, 
-	removeCourse: function(course) {
-		classes.removeObject(course);
+App.ClassCollector = Ember.Mixin.create({
+	add: function(course) {
+		console.log("Adding ");
+		console.log(course);
+		var inList = this.classes.find(function(item) {
+			return item.get('dept') === course.get('dept') && 
+					item.get('number') === course.get('number'); 
+		});
+		if(!inList) {
+			this.classes.addObject(course);
+		}
 	},
-	addCourse: function(course) {
-		classes.addObject(course);
+	remove: function(course) {
+		this.classes.removeObject(course);
 	}
 });
 
-App.ScheduleController = Ember.ObjectController.extend({
-	removeCourse: function(course) {
-		this.get('content.classes').removeObject(course);
+App.CourseCatalogController = Ember.ArrayController.extend(App.ClassCollector, {
+	classes: classes
+});
+
+App.ScheduleController = Ember.ObjectController.extend();
+
+App.TermController = Ember.ObjectController.extend(App.ClassCollector, {
+	add: function(course) {
+		console.log("Adding ");
+		console.log(course);
+		var inList = this.get('classes').find(function(item) {
+			return item.get('dept') === course.get('dept') && 
+					item.get('number') === course.get('number'); 
+		});
+		if(!inList) {
+			this.get('classes').addObject(course);
+		}
 	},
-	addCourse: function(course) {
-		this.get('content.classes').addObject(course);
+	remove: function(course) {
+		this.get('classes').removeObject(course);
 	}
 });

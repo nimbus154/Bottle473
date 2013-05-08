@@ -32,7 +32,35 @@
 					</div>
 				</div>
 				<div id='class_list'>
-				
+					{{ render courseCatalog }}
+				</div>
+			</div>
+		</script>
+
+		<script type="text/x-handlebars" id="courseCatalog">
+			{{#each classes}}{{! this = list of classes }}
+				{{! this = the current class }}
+				{{view App.ClassView contentBinding="this"}}
+			{{/each}}
+		</script>
+
+		<script type="text/x-handlebars" id="schedule">
+			{{#each terms}}
+				{{ render term this }}
+			{{/each}}
+		</script>
+
+		<script type="text/x-handlebars" id="term">
+					{{ view App.ClassListView }}
+		</script>
+
+		<script type="text/x-handlebars" id="classList" data-template-name="classList">
+			<div {{bindAttr id='term'}} class='student_schedule'>
+				<div id='schedule_block_header'></div>
+				{{#each classes}}{{! this = list of classes }}
+					{{! this = the current class }}
+					{{view App.ClassView contentBinding="this"}}
+				{{/each}}
 				</div>
 			</div>
 		</script>
@@ -55,16 +83,6 @@
 			</div>
 		</script>
 
-		<script type="text/x-handlebars" id="schedule">
-			{{#each terms}}
-			<div {{bindAttr id='term'}} class='student_schedule'>
-					<div id='schedule_block_header'></div>
-					{{#each this.classes }}
-						{{ render class this }}
-					{{/each}}
-				</div>
-			{{/each}}
-		</script>
 		<script src="js/libs/jquery-1.9.1.js"></script>
 		<script src="js/libs/handlebars-1.0.0-rc.3.js"></script>
 		<script src="js/libs/ember-1.0.0-rc.3.js"></script>
