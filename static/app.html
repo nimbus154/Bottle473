@@ -18,19 +18,7 @@
                 </div>
 
 				<div id='schedule_container'>
-					<div id='schedule_header'>
-						<div id='year_select'>
-							<ul>
-								{{#each App.schedules}}
-								<li>{{#linkTo schedule this}}{{year}}{{/linkTo}}</li>
-								{{/each}}}
-								<!-- add class last to last item -->
-							</ul>
-						</div>
-					</div>
-					<div id='schedule_block'>
-						{{ outlet }}
-					</div>
+                    {{ outlet }}
 				</div>
 				<div id='class_list'>
 					{{ render courseCatalog }}
@@ -56,10 +44,22 @@
             </ul>
 		</script>
 
-		<script type="text/x-handlebars" id="schedule">
-			{{#each terms}}
-				{{ render term this }}
-			{{/each}}
+		<script type="text/x-handlebars" id="schedules">
+            <div id='schedule_header'>
+                <div id='year_select'>
+                    <ul>
+                        {{#each App.schedules}}
+                        <li>{{#linkTo schedule this}}{{year}}{{/linkTo}}</li>
+                        {{/each}}}
+                        <!-- add class last to last item -->
+                    </ul>
+                </div>
+            </div>
+            <div id='schedule_block'>
+                {{#each terms}}
+                    {{ render term this }}
+                {{/each}}
+            </div>
 		</script>
 
 		<script type="text/x-handlebars" id="term" data-template-name="term">
