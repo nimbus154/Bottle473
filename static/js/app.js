@@ -138,7 +138,7 @@ App.CourseCatalogController = Ember.ArrayController.extend({
 
 App.ScheduleController = Ember.ObjectController.extend();
 
-App.TermController = Ember.ObjectController.extend(App.ClassCollector, {
+App.TermController = Ember.ObjectController.extend({
     add: function(course) {
         console.log("Adding ");
         console.log(course);
