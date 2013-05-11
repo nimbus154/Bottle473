@@ -6,17 +6,17 @@
 	</head>
 	<body>
 		<script type="text/x-handlebars" id="application">
-			<div id='container'>
-				<div id='header_bar'>
-					<span id='account_button'>Account</span>
-					<span id='secondary_buttons'>
-						<ul>
-							<li id='username'>Username</li>
-							<li id='logout'><a id='logout_text' href='/logout'>Logout</a></li>
-						</ul>
-					</span>
-				</div>
-				
+            <div id='container'>
+                <div id='header_bar'>
+                    <span id='account_button'>Account</span>
+                    <span id='secondary_buttons'>
+                        <ul>
+                            <li id='username'>Username</li>
+                            <li id='logout'><a id='logout_text' href='/logout'>Logout</a></li>
+                        </ul>
+                    </span>
+                </div>
+
 				<div id='schedule_container'>
 					<div id='schedule_header'>
 						<div id='year_select'>
@@ -35,14 +35,25 @@
 				<div id='class_list'>
 					{{ render courseCatalog }}
 				</div>
-			</div>
+                <div id='footer'>
+                    <div id='footer_text'>
+                        &copy <i>"The Shaolin Monkeys"</i> - Robert Cabral, Jeremy Chavez, Jeff Citron, Anthony Gonzalez, David Robison, Chad Wyszynski - CPSC-473 Spring 2013 Bottle Project
+                    </div>
+                </div>
+            </div>
 		</script>
 
 		<script type="text/x-handlebars" id="courseCatalog">
-			{{#each classes}}{{! this = list of classes }}
-				{{! this = the current class }}
-				{{view App.ClassView contentBinding="this"}}
-			{{/each}}
+            <div id='class_list_header'>
+                <a href='#'><span id='department_button'>Dept List</span></a>
+                <a href='#'><span id='class_button'>Class List</span></a>
+            </div>
+            <ul>
+            {{#each classes}}{{! this = list of classes }}
+                {{! this = the current class }}
+                <li>{{ dept }}-{{ number }}</li>
+            {{/each}}
+            </ul>
 		</script>
 
 		<script type="text/x-handlebars" id="schedule">
@@ -58,7 +69,6 @@
 					{{! this = the current class }}
 					{{view App.ClassView contentBinding="this"}}
 				{{/each}}
-				</div>
 			</div>
 		</script>
 
