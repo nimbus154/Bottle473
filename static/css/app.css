@@ -86,7 +86,7 @@ body{
 #class_list{
 	display:block;
 	float:right;
-	width:165px;
+	width:170px;
 	height:705px;
 	margin-top:1px;
 	margin-right:1px;
@@ -94,6 +94,7 @@ body{
 	border-top: 1px solid #fff;
 	padding: 10px;
 	background: #f0f0f0;
+    overflow: auto;
 }
 #class_list_header{
 	display:block;
