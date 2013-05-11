@@ -2,17 +2,8 @@ var App = Ember.Application.create({
     LOG_TRANSITIONS: true
 });
 
-// pattern borrowed from
-// http://stackoverflow.com/questions/12064765/initialization-with-serialize-deserialize-ember-js
-App.DepartmentFetcher = {
-    url: "/departments",
-    all: function() {
-        return this.getObjectsHelper(this.url);
-    },
-    classes: function(department) {
-        return this.getObjectsHelper(this.url + "/" + department.abbrev);
-    },
-    getObjectsHelper: function(url) {
+App.ObjectRetriever = Ember.Mixin.create({
+    getObjects: function(url) {
         var array = [];
         $.getJSON(url, function(data) {
             // Ember's observer pattern magic lets this populate everywhere!
@@ -20,32 +11,70 @@ App.DepartmentFetcher = {
         });
         return array;
     }
-}
+});
 
-var user = "admin";
+// pattern borrowed from
+// http://stackoverflow.com/questions/12064765/initialization-with-serialize-deserialize-ember-js
+App.DepartmentFetcher = Ember.Object.createWithMixins(App.ObjectRetriever, {
+    url: "/departments",
+    all: function() {
+        return this.getObjects(this.url);
+    },
+    courses: function(deptAbbrev) {
+        var url = this.url + "/" + deptAbbrev.toUpperCase();
+        return this.getObjects(url);
+    }
+});
+
+App.ScheduleStore = Ember.Object.createWithMixins(App.ObjectRetriever, {
+    user: null,
+    url: "/api/user/" + this.user + "/schedules",
+    __saveOne: function(schedule, id) {
+        // save a serverSchedule
+        console.log("saving...");
+        console.log(schedule);
+        $.ajax({
+            url: this.url,
+            type: "put",
+            contentType: "application/json",
+            processData: false,
+            data: JSON.stringify(schedule)
+        });
+    },
+    save: function(clientSchedule) {
+        // client schedule and server schedule are different objects
+        // server schedule ~= client-side term
+        var year, serverSchedule = {}, context = this;
+        year = clientSchedule.get('year');
+
+        
+        clientSchedule.terms.forEach(function(term) {
+           serverSchedule.semester = term.term;
+           serverSchedule.year = year;
+           serverSchedule.user_id = "userID!!!";
+           serverSchedule.courses = term.courses;
+
+           context.__saveOne(serverSchedule, clientSchedule.id);
+        });
+    }
+});
 
 App.Schedule = Ember.Object.extend({
     year: null,
-    terms: [ ]
+    terms: []
 });
 
 App.Term = Ember.Object.extend({
     term: null,
-    classes: []
+    courses: []
 });
 
-App.Department = Ember.Object.extend({
+App.Course = Ember.Object.extend({
     name: null,
-    abbrev: null
-});
-
-App.Class = Ember.Object.extend({
-    name: null,
-    number: 0,
+    number: null,
     dept: null,
     prereqs: []
 });
-
 
 // thanks to http://jsfiddle.net/ud3323/5uX9H/ for drag n' drop tips
 App.ClassView = Ember.View.extend({
@@ -121,7 +150,7 @@ App.ClassCollector = Ember.Mixin.create({
 });
 
 App.CourseCatalogController = Ember.ArrayController.extend({
-    //classes: App.Course.find() // get all classes from server
+    classes: App.DepartmentFetcher.courses("cpsc")
 });
 
 App.ScheduleController = Ember.ObjectController.extend();
