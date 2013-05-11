@@ -75,6 +75,13 @@ App.TermSchedule.reopen({
     }
 });
 
+App.Terms = [
+    'FALL',
+    'WINTER',
+    'SPRING',
+    'SUMMER'
+];
+
 App.Course = Ember.Object.extend({
     // course associated with a term
     name: null,
@@ -108,14 +115,30 @@ App.ScheduleStore = Ember.Object.createWithMixins(App.ObjectRetriever, {
             App.advanceReadiness();
         });
     },
+    createYear: function(year) {
+        // create a new schedule year
+        var context = this;
+        // TODO bug with number of terms in year, after repeated creates
+        var yearSchedule = App.YearSchedule.create({ year: year });
+
+        // create fall, winter, spring, summer terms
+        App.Terms.forEach(function(term) {
+            console.log(term);
+            var termSchedule = context.create({ term: term });
+            console.log(yearSchedule.get('terms').length);
+            yearSchedule.get('terms').addObject(termSchedule);
+        });
+
+        return yearSchedule;
+    },
     create: function(options) {
         var term = App.TermSchedule.create(options);
 
         $.ajax({
             url: this.url,
             type: 'post',
-        // JQuery 1.9 treats empty response bodies as errors
-        // 201 create has an empty response body :-/
+            // JQuery 1.9 treats empty response bodies as errors
+            // 201 create has an empty response body :-/
             error: function(xhr, status, error) {
                 if(xhr.status === 201) {
                     // success
@@ -163,25 +186,28 @@ App.TermView = Ember.View.extend({
     }
 });
 
+// TODO handle year not found
 App.Router.map(function() {
     this.resource('schedule', {path: '/schedule/:year'});
 });
 
 App.IndexRoute = Ember.Route.extend({
+
     renderTemplate: function() {
-        var thisYear = new Date().getFullYear();
+        var startingSchedule, thisYear = new Date().getFullYear();
+
         if(App.schedules.length == 0) {
-            console.log("No schedules");
+            console.log("Schedules not found");
+            startingSchedule = App.ScheduleStore.createYear(thisYear);
+            App.schedules.addObject(startingSchedule);
         }
         else {
-            console.log("Shedules found");
+            // if this year, get schedule for this year
+            console.log("Schedules found");
+            startingSchedule = App.schedules.find(function(item) {
+                return item.year == thisYear;
+            });
         }
-        thisYear = new Date().getFullYear();
-        /*
-        var startingSchedule = App.schedules.find(function(item) {
-            return item.year == thisYear;
-        });
-        */
         // this.transitionTo('schedule', startingSchedule);
     }
 });
