@@ -1,0 +1,46 @@
+<html>
+	<head>
+		<title>CPSC-473 Project 3</title>
+		<link rel='stylesheet' href='style.css' type='text/css'>
+		<!-- throw in some jquery to make the magic happen -->
+	</head>
+	<body>
+		<div id='container'>
+			<div id='header_bar'>
+				<!-- login page, no need for this stuff -->
+			</div>
+			<div id='tagline'>
+				<p>
+					Welcome back!
+				</p>
+			</div>
+			<div id='login_box'>
+				<form class="login" method="POST" action="submit">
+				    <p class="clearfix">
+				        <label for="login">Username</label>
+				        <input type="text" name="login" id="login" placeholder="Username">
+				    </p>
+				    <p class="clearfix">
+				        <label for="password">Password</label>
+				        <input type="password" name="password" id="password" placeholder="Password"> 
+				    </p>
+				    <p class="clearfix">
+				        <input type="submit" name="submit" value="Sign in">
+				    </p>       
+				</form>
+			</div>
+			<div id='tagline2'>
+				<p>
+					First time here?
+				</p>
+			</div>
+			<div id='register_box'>
+				<form class="register" method="POST" action="submit">
+				    <p class="clearfix">
+				        <input type="submit" name="submit" value="Register">
+				    </p>       
+				</form>
+			</div>
+		</div>
+	</body>
+</html>

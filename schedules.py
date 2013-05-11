@@ -4,12 +4,13 @@ from bottle import install, run
 
 from bottle_mongo import MongoPlugin
 from bson.objectid import ObjectId
+from pprint import pprint
 
 import validictory
 
 install(MongoPlugin(uri='localhost', db='mydatabase', json_mongo=True))
 
-secret_key = 84252450
+secret_key = 84251450
 semesters = ['SPRING', 'SUMMER', 'FALL', 'WINTER']
 # Schema for json Schedule object
 schedule_schema = {
@@ -48,17 +49,20 @@ def new_schedule(username, mongodb):
     Status 201 is created. If the session is not valid, status 401 Unauthorized
     is returned.
     '''
-    session_user = request.get_cookie('sessions', secret=secret_key)
+    session_user = request.get_cookie('session', secret=secret_key)
     if session_user:    # Do your thing, man
         # Mongo cursor with single document containing only _id
         user = mongodb.users.find_one({'username': username}, {'_id': 1})
-        # Create new schedule with user: ObjectId() of :username
-        sid = mongodb.schedules.insert({'user_id': user['_id']})
-        # Set response headers
-        response.content_type = 'application/json'
-        response.status = 201
-        response.headers['location'] = '/api/users/%s/schedules/%s' % (username, str(sid))
-        return
+        if user:
+            # Create new schedule with user: ObjectId() of :username
+            sid = mongodb.schedules.insert({'user_id': user['_id']})
+            # Set response headers
+            response.content_type = 'application/json'
+            response.status = 201
+            response.headers['location'] = '/api/users/%s/schedules/%s' % (username, str(sid))
+            return
+        else:
+            return HTTPResponse(status=401, output="Not a valid user")
     else:   # Access denied
         return HTTPResponse(status=401, output="Yeah, if you could log in, that'd be great.")
 
@@ -125,4 +129,3 @@ def get_all_schedules(username, mongodb):
     if user:    # Valid user
         return mongodb.schedules.find({'user_id': user['_id']})
     return HTTPResponse(status=400, output="Not a valid user.")
-
