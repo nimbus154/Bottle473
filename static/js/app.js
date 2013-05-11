@@ -22,17 +22,61 @@ App.ObjectRetriever = Ember.Mixin.create({
     find: null // retrieve an object
 });
 
-App.Schedule = Ember.Object.extend({
+App.YearSchedule = Ember.Object.extend({
+    // essentially, an organized collection of terms
     year: null,
-    terms: []
+    terms: [],
+    save: function() {
+        // client schedule and server schedule are different objects
+        // server schedule ~= client-side term
+        var year, termSchedule = {}, context = this;
+        year = this.get('year');
+
+        this.get('terms').forEach(function(term) {
+           termSchedule.semester = term.get('term');
+           termSchedule.year = year;
+           termSchedule.user_id = 'admin\'s id';
+           termSchedule.courses = term.get('courses');
+
+           context.__saveOne(termSchedule, term.get('id'));
+        });
+    },
+    __saveOne: function(schedule) {
+        // save a serverSchedule
+        // not meant to be called externally
+        console.log('saving...');
+        console.log(schedule);
+        $.ajax({
+            url: shedule.get('id'),
+            type: 'put',
+            contentType: 'application/json',
+            processData: false,
+            data: JSON.stringify(schedule)
+        });
+    }
 });
 
-App.Term = Ember.Object.extend({
+App.TermSchedule = Ember.Object.extend({
+    // corresponds to the REST API's definition of a schedule
+    // Aggregates classes
+    // Should always be side of a schedule
     term: null,
-    courses: []
+    courses: [],
+});
+
+App.TermSchedule.reopen({
+    createRecord: function(options) {
+        // creates an empty term on the server
+        // instantiates an object, then set ID once it's created via the store
+
+        var term = this.create(options);
+        this.store.create(term);
+        return term;
+    }
 });
 
 App.Course = Ember.Object.extend({
+    // course associated with a term
     name: null,
     number: null,
     dept: null,
@@ -55,34 +99,6 @@ App.DepartmentFetcher = Ember.Object.createWithMixins(App.ObjectRetriever, {
 App.ScheduleStore = Ember.Object.createWithMixins(App.ObjectRetriever, {
     user: null,
     url: '/api/users/' + 'admin' + '/schedules',
-    __saveOne: function(schedule, id) {
-        // save a serverSchedule
-        // not meant to be called externally
-        console.log('saving...');
-        console.log(schedule);
-        $.ajax({
-            url: this.url,
-            type: 'put',
-            contentType: 'application/json',
-            processData: false,
-            data: JSON.stringify(schedule)
-        });
-    },
-    save: function(clientSchedule) {
-        // client schedule and server schedule are different objects
-        // server schedule ~= client-side term
-        var year, serverSchedule = {}, context = this;
-        year = clientSchedule.get('year');
-
-        clientSchedule.terms.forEach(function(term) {
-           serverSchedule.semester = term.term;
-           serverSchedule.year = year;
-           serverSchedule.user_id = 'userID!!!';
-           serverSchedule.courses = term.courses;
-
-           context.__saveOne(serverSchedule, clientSchedule.id);
-        });
-    },
     all: function() {
         // retrieve all objects, then instantiate them as Ember objects
         return this.getObjects(this.url, function(array) {
@@ -91,6 +107,28 @@ App.ScheduleStore = Ember.Object.createWithMixins(App.ObjectRetriever, {
             // TODO handle ajax schedule load fail
             App.advanceReadiness();
         });
+    },
+    create: function(options) {
+        var term = App.TermSchedule.create(options);
+
+        $.ajax({
+            url: this.url,
+            type: 'post',
+        // JQuery 1.9 treats empty response bodies as errors
+        // 201 create has an empty response body :-/
+            error: function(xhr, status, error) {
+                if(xhr.status === 201) {
+                    // success
+                    term.set('id', xhr.getResponseHeader('Location'));
+                }
+                else {
+                    // TODO replace with real error handling
+                    console.log(error);
+                }
+            }
+        });
+        
+        return term;
     }
 });
 
@@ -131,6 +169,7 @@ App.Router.map(function() {
 
 App.IndexRoute = Ember.Route.extend({
     renderTemplate: function() {
+        var thisYear = new Date().getFullYear();
         if(App.schedules.length == 0) {
             console.log("No schedules");
         }
@@ -142,8 +181,8 @@ App.IndexRoute = Ember.Route.extend({
         var startingSchedule = App.schedules.find(function(item) {
             return item.year == thisYear;
         });
-        this.transitionTo('schedule', startingSchedule);
         */
+        // this.transitionTo('schedule', startingSchedule);
     }
 });
 
