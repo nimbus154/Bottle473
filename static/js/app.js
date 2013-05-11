@@ -5,6 +5,11 @@ var App = Ember.Application.create({
 // wait until we get all schedules; advanceReadiness called in ScheduleStore.all
 App.deferReadiness(); 
 
+
+//////////////////////////
+// MODELS AND DATASTORE //
+//////////////////////////
+
 // mixin to extract common ajax retrieval
 App.ObjectRetriever = Ember.Mixin.create({
     getObjects: function(url, successCallback) {
@@ -49,6 +54,7 @@ App.TermSchedule = Ember.Object.extend({
     url: '/api/users/' + 'admin' + '/schedules',
     createRecord: function() {
         // create an empty term on the server
+        var _this = this;
         if(this.get('id')) {
             throw new Error("Object already exists on server!");
         }
@@ -61,7 +67,8 @@ App.TermSchedule = Ember.Object.extend({
             async: false,
             error: function(xhr, status, error) {
                 if(xhr.status === 201) {
-                    // success
+                    // success, set ID
+                    _this.set('id', xhr.getResponseHeader('Location'));
                 }
                 else {
                     // TODO replace with real error handling
@@ -71,6 +78,7 @@ App.TermSchedule = Ember.Object.extend({
         });
     },
     save: function() {
+        var _this = this;
         console.log('saving...');
         console.log(this);
         $.ajax({
@@ -80,12 +88,12 @@ App.TermSchedule = Ember.Object.extend({
             processData: false,
             data: this.serialize(),
             success: function() { 
-                console.log("Saved " + this.get('year') 
-                    + " " + this.get('term'));
+                console.log("Saved " + _this.get('year') 
+                    + " " + _this.get('term'));
             },
             error: function() {
-                console.log("Saved " + this.get('year') 
-                    + " " + this.get('term'));
+                console.log("Saved " + _this.get('year') 
+                    + " " + _this.get('term'));
             }
         });
     }.observes('id'), // auto save once ID is set
@@ -156,7 +164,7 @@ App.ScheduleStore = Ember.Object.createWithMixins(App.ObjectRetriever, {
             var termSchedule = App.TermSchedule.create();
             termSchedule.set('year', year);
             termSchedule.set('term', term);
-            termSchedule.createTerm(); // create server record
+            termSchedule.createRecord(); // create server record
             yearSchedule.get('terms').addObject(termSchedule);
 
             console.log(yearSchedule.get('terms').length);
@@ -168,6 +176,10 @@ App.ScheduleStore = Ember.Object.createWithMixins(App.ObjectRetriever, {
 
 // get a list of all user schedules
 App.schedules = App.ScheduleStore.all();
+
+/////////////////////////
+//        VIEWS        //
+/////////////////////////
 
 // thanks to http://jsfiddle.net/ud3323/5uX9H/ for drag n' drop tips
 App.ClassView = Ember.View.extend({
@@ -203,7 +215,6 @@ App.Router.map(function() {
 });
 
 App.IndexRoute = Ember.Route.extend({
-
     renderTemplate: function() {
         var startingSchedule, thisYear = new Date().getFullYear();
 
@@ -211,6 +222,8 @@ App.IndexRoute = Ember.Route.extend({
             console.log("Schedules not found");
             startingSchedule = App.ScheduleStore.createYear(thisYear);
             App.schedules.addObject(startingSchedule);
+            console.log(App.schedules);
+            console.log(startingSchedule);
         }
         else {
             // if this year, get schedule for this year
@@ -219,7 +232,7 @@ App.IndexRoute = Ember.Route.extend({
                 return item.year == thisYear;
             });
         }
-        // this.transitionTo('schedule', startingSchedule);
+        this.transitionTo('schedule', startingSchedule);
     }
 });
 
@@ -228,8 +241,16 @@ App.ScheduleRoute = Ember.Route.extend({
         controller.set('content', model);
     },
     model: function(params) {
-        // return App.Schedule.find(params.year);
-        return {};
+        console.log("Items");
+        //App.schedules.findProperty('year', params.year); might work too
+        var model = App.schedules.find(function(item) {
+            console.log(item.year);
+            console.log(params);
+            console.log(params.year);
+            return item.year == params.year;
+        });
+        console.log(model);
+        return model;
     },
     serialize: function(model) {
         return { 'year': model.year };
