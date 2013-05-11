@@ -26,9 +26,9 @@ deptfile = open("DepartmentList.md")
 for line in deptfile :
    Departments = {}
    
-   dept = line.split(" ",2)
-   Departments['name'] = dept[0]
-   Departments['abbrev'] =  dept[1]
+   dept = line.split("  ",2)
+   Departments['name'] = dept[1].replace("\n","")
+   Departments['abbrev'] =  dept[0]
    db['Department'].save(Departments)
 
 deptfile.close()
