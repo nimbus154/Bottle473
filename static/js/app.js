@@ -33,25 +33,7 @@ App.YearSchedule = Ember.Object.extend({
         year = this.get('year');
 
         this.get('terms').forEach(function(term) {
-           termSchedule.semester = term.get('term');
-           termSchedule.year = year;
-           termSchedule.user_id = 'admin\'s id';
-           termSchedule.courses = term.get('courses');
-
-           context.__saveOne(termSchedule, term.get('id'));
-        });
-    },
-    __saveOne: function(schedule) {
-        // save a serverSchedule
-        // not meant to be called externally
-        console.log('saving...');
-        console.log(schedule);
-        $.ajax({
-            url: shedule.get('id'),
-            type: 'put',
-            contentType: 'application/json',
-            processData: false,
-            data: JSON.stringify(schedule)
+           term.save();
         });
     }
 });
@@ -60,18 +42,61 @@ App.TermSchedule = Ember.Object.extend({
     // corresponds to the REST API's definition of a schedule
     // Aggregates classes
     // Should always be side of a schedule
+    id: null,
+    year: null,
     term: null,
     courses: [],
-});
+    url: '/api/users/' + 'admin' + '/schedules',
+    createRecord: function() {
+        // create an empty term on the server
+        if(this.get('id')) {
+            throw new Error("Object already exists on server!");
+        }
+        console.log("Create record called");
+        $.ajax({
+            url: this.url,
+            type: 'post',
+            // JQuery 1.9 treats empty response bodies as errors
+            // 201 create has an empty response body :-/
+            async: false,
+            error: function(xhr, status, error) {
+                if(xhr.status === 201) {
+                    // success
+                }
+                else {
+                    // TODO replace with real error handling
+                    console.log(error);
+                }
+            }
+        });
+    },
+    save: function() {
+        console.log('saving...');
+        console.log(this);
+        $.ajax({
+            url: this.get('id'),
+            type: 'put',
+            contentType: 'application/json',
+            processData: false,
+            data: this.serialize(),
+            success: function() { 
+                console.log("Saved " + this.get('year') 
+                    + " " + this.get('term'));
+            },
+            error: function() {
+                console.log("Saved " + this.get('year') 
+                    + " " + this.get('term'));
+            }
+        });
+    }.observes('id'), // auto save once ID is set
+    serialize: function() {
+        var termSchedule = {};
+        termSchedule.semester = this.get('term');
+        termSchedule.year = this.get('year');
+        termSchedule.user_id = this.get('user_id');
+        termSchedule.courses = this.get('courses');
 
-App.TermSchedule.reopen({
-    createRecord: function(options) {
-        // creates an empty term on the server
-        // instantiates an object, then set ID once it's created via the store
-
-        var term = this.create(options);
-        this.store.create(term);
-        return term;
+        return JSON.stringify(termSchedule);
     }
 });
 
@@ -118,40 +143,26 @@ App.ScheduleStore = Ember.Object.createWithMixins(App.ObjectRetriever, {
     createYear: function(year) {
         // create a new schedule year
         var context = this;
+        
         // TODO bug with number of terms in year, after repeated creates
-        var yearSchedule = App.YearSchedule.create({ year: year });
+        var yearSchedule = App.YearSchedule.create();
+        yearSchedule.set('year', year);
 
         // create fall, winter, spring, summer terms
         App.Terms.forEach(function(term) {
             console.log(term);
-            var termSchedule = context.create({ term: term });
-            console.log(yearSchedule.get('terms').length);
+            console.log(year);
+
+            var termSchedule = App.TermSchedule.create();
+            termSchedule.set('year', year);
+            termSchedule.set('term', term);
+            termSchedule.createTerm(); // create server record
             yearSchedule.get('terms').addObject(termSchedule);
+
+            console.log(yearSchedule.get('terms').length);
         });
 
         return yearSchedule;
-    },
-    create: function(options) {
-        var term = App.TermSchedule.create(options);
-
-        $.ajax({
-            url: this.url,
-            type: 'post',
-            // JQuery 1.9 treats empty response bodies as errors
-            // 201 create has an empty response body :-/
-            error: function(xhr, status, error) {
-                if(xhr.status === 201) {
-                    // success
-                    term.set('id', xhr.getResponseHeader('Location'));
-                }
-                else {
-                    // TODO replace with real error handling
-                    console.log(error);
-                }
-            }
-        });
-        
-        return term;
     }
 });
 
