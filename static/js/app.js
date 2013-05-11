@@ -2,77 +2,48 @@ var App = Ember.Application.create({
     LOG_TRANSITIONS: true
 });
 
+// pattern borrowed from
+// http://stackoverflow.com/questions/12064765/initialization-with-serialize-deserialize-ember-js
+App.DepartmentFetcher = {
+    url: "/departments",
+    all: function() {
+        return this.getObjectsHelper(this.url);
+    },
+    classes: function(department) {
+        return this.getObjectsHelper(this.url + "/" + department.abbrev);
+    },
+    getObjectsHelper: function(url) {
+        var array = [];
+        $.getJSON(url, function(data) {
+            // Ember's observer pattern magic lets this populate everywhere!
+            array.addObjects(data);
+        });
+        return array;
+    }
+}
+
 var user = "admin";
 
-App.Store = DS.Store.extend({
-    revision: 12,
-    adapter: DS.RESTAdapter
+App.Schedule = Ember.Object.extend({
+    year: null,
+    terms: [ ]
 });
 
-// Modify the RESTAdapter to fit our POST/PUT format
-// These are slight modifications to the methods in the Ember library.
-// By default, Ember would post {"schedule":{}}, but we want just the object.
-// https://github.com/emberjs/data/blob/master/packages/ember-data/lib/adapters/rest_adapter.js#L121
-DS.RESTAdapter.reopen({
-    url: '/api/users/' + user,
-    createRecord: function(store, type, record) {
-        var root = this.rootForType(type);
-        var adapter = this;
-
-        return this.ajax(this.buildURL(root), "POST", {
-            data: this.serialize(record, { includeId: true })
-        }).then(function(json){
-            Ember.run(adapter, 'didCreateRecord', store, type, record, json);
-        }, function(xhr) {
-            adapter.didError(store, type, record, xhr);
-            throw xhr;
-        });
-    },
-    updateRecord: function(store, type, record) {
-        var id, root, adapter;
-
-        id = get(record, 'id');
-        root = this.rootForType(type);
-        adapter = this;
-
-        return this.ajax(this.buildURL(root, id), "PUT",{
-            data: this.serialize(record)
-        }).then(function(json){
-            Ember.run(adapter, 'didUpdateRecord', store, type, record, json);
-        }, function(xhr) {
-            adapter.didError(store, type, record, xhr);
-            throw xhr;
-        });
-    }
+App.Term = Ember.Object.extend({
+    term: null,
+    classes: []
 });
 
-// Define how to serialize arrays
-DS.RESTAdapter.registerTransform('array', {
-    serialize: function(value) {
-        return JSON.stringify(value);
-    },
-    deserialize: function(value) {
-        return JSON.parse(value);
-    }
+App.Department = Ember.Object.extend({
+    name: null,
+    abbrev: null
 });
 
-App.Department = DS.Model.extend({
-    name: DS.attr('string'),
-    abbrev: DS.attr('string')
-});
-
-App.Class = DS.Model.extend({
-    name: DS.attr('string'),
-    number: DS.attr('number'),
-    dept: DS.attr('string'),
-    prereqs: DS.attr('array')
-});
-
-App.Schedule = DS.Model.extend({
-    semester: DS.attr('string'),
-    year: DS.attr('string'),
-    user_id: DS.attr('string'),
-    courses: DS.attr('array')
+App.Class = Ember.Object.extend({
+    name: null,
+    number: 0,
+    dept: null,
+    prereqs: []
 });
 
 
@@ -149,7 +120,9 @@ App.ClassCollector = Ember.Mixin.create({
     }
 });
 
-App.CourseCatalogController = Ember.ArrayController.extend(App.ClassCollector );
+App.CourseCatalogController = Ember.ArrayController.extend({
+    //classes: App.Course.find() // get all classes from server
+});
 
 App.ScheduleController = Ember.ObjectController.extend();
 
