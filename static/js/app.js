@@ -132,23 +132,6 @@ App.ScheduleRoute = Ember.Route.extend({
     }
 });
 
-App.ClassCollector = Ember.Mixin.create({
-    add: function(course) {
-        console.log("Adding ");
-        console.log(course);
-        var inList = this.classes.find(function(item) {
-            return item.get('dept') === course.get('dept') && 
-                    item.get('number') === course.get('number'); 
-        });
-        if(!inList) {
-            this.classes.addObject(course);
-        }
-    },
-    remove: function(course) {
-        this.classes.removeObject(course);
-    }
-});
-
 App.CourseCatalogController = Ember.ArrayController.extend({
     classes: App.DepartmentFetcher.courses("cpsc")
 });
