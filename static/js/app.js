@@ -154,7 +154,7 @@ App.ScheduleStore = Ember.Object.createWithMixins(App.ObjectRetriever, {
         }).uniq();
         // create year hashes in the schedules object
         years.forEach(function(item) {
-            var yearSchedule = App.YearSchedule.create(item);
+            var yearSchedule = App.YearSchedule.create({ year: item });
             yearSchedule.set('semesters', schedules.filterProperty('year', item));
             yearSchedules.addObject(yearSchedule);
         });
@@ -170,9 +170,10 @@ App.ScheduleStore = Ember.Object.createWithMixins(App.ObjectRetriever, {
 
         // create fall, winter, spring, summer terms
         App.SemestersEnum.forEach(function(term) {
-            var semesterSchedule = App.SemesterSchedule.create();
-            semesterSchedule.set('year', year);
-            semesterSchedule.set('semester', term);
+            var semesterSchedule = App.SemesterSchedule.create({
+                year: year,
+                semester: term
+            });
             semesterSchedule.createRecord(); // create server record
             yearSchedule.get('semesters').addObject(semesterSchedule);
         });
@@ -182,10 +183,8 @@ App.ScheduleStore = Ember.Object.createWithMixins(App.ObjectRetriever, {
 });
 
 // get a list of all user schedules
-// This call kicks off the application once data is fetched
-// App.advanceReadiness is passed as a callback, to be invoked once data is
-// fetched.
 App.schedules = App.ScheduleStore.Schedules(function() {
+    // This call kicks off the application once data is fetched
     App.advanceReadiness();
 });
 
@@ -243,6 +242,7 @@ App.IndexRoute = Ember.Route.extend({
             // Retrieve existing schedule, preferably for this year
             console.log("Schedules found");
             // TODO handle if this year doesn't exist
+            console.log(App.schedules);
             startingSchedule = App.schedules.findProperty('year', thisYear);
             console.log(startingSchedule);
         }
@@ -257,7 +257,7 @@ App.ScheduleRoute = Ember.Route.extend({
     model: function(params) {
         console.log("Items");
         // TODO handle if year doesn't exist
-        var model = App.schedules[params.year] 
+        var model = App.schedules.findProperty('year', params.year);
         console.log(model);
         return model;
     },
