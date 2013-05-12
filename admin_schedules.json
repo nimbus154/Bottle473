@@ -1,0 +1,4 @@
+{ "_id" : { "$oid" : "518ed243e4f0b7221314faf3" }, "semester" : "SUMMER", "user_id" : { "$oid" : "518a9491e4f0b713cb8e87e2" } }
+{ "_id" : { "$oid" : "518ed243e4f0b7221314faf4" }, "semester" : "SPRING", "user_id" : { "$oid" : "518a9491e4f0b713cb8e87e2" } }
+{ "_id" : { "$oid" : "518ed243e4f0b7221314faf5" }, "semester" : "FALL", "user_id" : { "$oid" : "518a9491e4f0b713cb8e87e2" } }
+{ "_id" : { "$oid" : "518ed243e4f0b7221314faf6" }, "semester" : "WINTER", "user_id" : { "$oid" : "518a9491e4f0b713cb8e87e2" } }
