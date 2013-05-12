@@ -115,7 +115,7 @@ App.Course = Ember.Object.extend({
 // pattern borrowed from
 // http://stackoverflow.com/questions/12064765/initialization-with-serialize-deserialize-ember-js
 App.CourseCatalogFetcher = Ember.Object.createWithMixins(App.ObjectRetriever, {
-    url: '/departments',
+    url: '/api/departments',
     all: function() {
         return this.getObjects(this.url);
     },
