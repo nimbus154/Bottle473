@@ -98,10 +98,10 @@ App.SemesterSchedule = Ember.Object.extend({
 });
 
 App.SemestersEnum = [
-    'FALL',
-    'WINTER',
-    'SPRING',
-    'SUMMER'
+    'fall',
+    'winter',
+    'spring',
+    'summer'
 ];
 
 App.Course = Ember.Object.extend({
@@ -204,8 +204,8 @@ App.ClassView = Ember.View.extend({
     }
 });
 
-App.TermView = Ember.View.extend({
-    templateName: 'term',
+App.SemesterView = Ember.View.extend({
+    templateName: 'semester',
     dragOver: function(event) {
         event.preventDefault();
         return false;
