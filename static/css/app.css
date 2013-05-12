@@ -253,19 +253,19 @@ body{
 #schedule_block .student_schedule:hover{
 	box-shadow: inset 0px 0px 1px 1px #000;
 }
-#spring{
+#SPRING{
 	background: #fff;
 	background-image:url('images/spring.png');
 }
-#summer{
+#SUMMER{
 	background: #fff;
 	background-image:url('images/summer.png');
 }
-#fall{
+#FALL{
 	background: #fff;
 	background-image:url('images/fall.png');
 }
-#winter{
+#WINTER{
 	background: #fff;
 	background-image:url('images/winter.png');			
 }

@@ -44,7 +44,7 @@
             </ul>
 		</script>
 
-		<script type="text/x-handlebars" id="schedules">
+		<script type="text/x-handlebars" id="schedule">
             <div id='schedule_header'>
                 <div id='year_select'>
                     <ul>
@@ -56,17 +56,17 @@
                 </div>
             </div>
             <div id='schedule_block'>
-                {{#each terms}}
-                    {{ render term this }}
+                {{#each semesters}}
+                    {{! this = current semester }}
+                    {{ render semester this }}
                 {{/each}}
             </div>
 		</script>
 
-		<script type="text/x-handlebars" id="term" data-template-name="term">
-			<div {{bindAttr id='term'}} class='student_schedule'>
+		<script type="text/x-handlebars" id="semester" data-template-name="semester">
+			<div {{bindAttr id='semester'}} class='student_schedule'>
 				<div id='schedule_block_header'></div>
-				{{#each classes}}{{! this = list of classes }}
-					{{! this = the current class }}
+				{{#each courses}}
 					{{view App.ClassView contentBinding="this"}}
 				{{/each}}
 			</div>
