@@ -244,9 +244,8 @@ App.ScheduleRoute = Ember.Route.extend({
         console.log("Items");
         //App.schedules.findProperty('year', params.year); might work too
         var model = App.schedules.find(function(item) {
-            console.log(item.year);
-            console.log(params);
-            console.log(params.year);
+            console.log("Item year: " + item.year);
+            console.log("Params year: " + params.year);
             return item.year == params.year;
         });
         console.log(model);
