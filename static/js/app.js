@@ -88,7 +88,7 @@ App.SemesterSchedule = Ember.Object.extend({
     }.observes('id'), // auto save once ID is set
     serialize: function() {
         var schedule = {};
-        schedule.semester = this.get('term');
+        schedule.semester = this.get('semester');
         schedule.year = this.get('year');
         schedule.user_id = this.get('user_id');
         schedule.courses = this.get('courses');
@@ -98,10 +98,10 @@ App.SemesterSchedule = Ember.Object.extend({
 });
 
 App.SemestersEnum = [
-    'fall',
-    'winter',
-    'spring',
-    'summer'
+    'FALL',
+    'WINTER',
+    'SPRING',
+    'SUMMER'
 ];
 
 App.Course = Ember.Object.extend({
@@ -254,15 +254,11 @@ App.ScheduleRoute = Ember.Route.extend({
     },
     model: function(params) {
         var model, yearParam;
-        try {
-            yearParam = parseInt(params.year);
-            model = App.schedules.findProperty('year', parseInt(params.year));
-            return model;
-        }
-        catch(Error) {
-        // TODO handle if year doesn't exist
-            throw Error("Error with parameters");
-        }
+        yearParam = parseInt(params.year); // TODO check for NaN
+        model = App.schedules.findProperty('year', parseInt(params.year));
+        console.log("Model chosen");
+        console.log(model);
+        return model;
     },
     serialize: function(model) {
         return { 'year': model.year };
@@ -272,8 +268,6 @@ App.ScheduleRoute = Ember.Route.extend({
 App.CourseCatalogController = Ember.ArrayController.extend({
     classes: App.CourseCatalogFetcher.courses('cpsc')
 });
-
-App.ScheduleController = Ember.ObjectController.extend();
 
 App.TermController = Ember.ObjectController.extend({
     add: function(course) {
