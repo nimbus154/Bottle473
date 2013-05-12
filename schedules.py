@@ -56,7 +56,6 @@ def new_schedule(username, mongodb):
     is returned.
     '''
     session_user = request.get_cookie('session', secret=secret_key)
-    pprint(session_user)
     if session_user:    # Do your thing, man
         # Mongo cursor with single document containing only _id
         user = mongodb.users.find_one({'username': username}, {'_id': 1})
@@ -103,7 +102,6 @@ def update_schedule(username, sid, mongodb):
                         # Clears all courses from schedule document if courses is
                         # not in the json object in the request.
                         request.json['courses'] = []
-                    pprint(request.json)
                     mongodb.schedules.update({'_id': ObjectId(sid)}, {'$set': request.json})
                 except ValueError, error:
                     # Return 400 status and error from validation.
