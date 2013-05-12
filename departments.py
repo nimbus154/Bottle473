@@ -9,7 +9,7 @@ connection = Connection('localhost', 27017)  #need to modify for your database
 db = connection.mydatabase
 
      
-@route('/departments', method='GET')
+@route('/api/departments', method='GET')
 def get_departments():
     departmentslist = []
     entity = db['Department'].find()
@@ -20,7 +20,7 @@ def get_departments():
     return json.dumps(departmentslist, sort_keys=True, indent=4, default=json_util.default)
 
 
-@route('/departments/:abbrev', method='GET')
+@route('/api/departments/:abbrev', method='GET')
 def get_departments_info(abbrev):
     classlist = []
     entity = db['Course'].find({'department': abbrev})
