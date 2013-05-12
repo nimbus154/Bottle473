@@ -72,9 +72,9 @@ def new_schedule(username, mongodb):
                 response.headers['location'] = '/api/users/%s/schedules/%s' % (username, str(sid))
                 return
             else:
-                return HTTPResponse(status=401, output="You do not have permission.")    
+                return HTTPResponse(status=401, output="You do not have permission.")
         else:
-            return HTTPResponse(status=401, output="Not a valid user")
+            return HTTPResponse(status=401, output="Not a valid user.")
     else:   # Access denied
         return HTTPResponse(status=401, output="Yeah, if you could log in, that'd be great.")
 
@@ -92,23 +92,30 @@ def update_schedule(username, sid, mongodb):
     # Check session cookie. Returns username if matched; otherwise, None.
     session_user = request.get_cookie('session', secret=secret_key)
     if session_user:    # Do your thing, man.
-        try:
-            # Validate json data from request.
-            validictory.validate(request.json, schedule_schema)
-            # Update schedule
-            if 'courses' not in request.json.keys():
-                # Clears all courses from schedule document if courses is
-                # not in the json object in the request.
-                request.json['courses'] = []
-            pprint(request.json)
-            mongodb.schedules.update({'_id': ObjectId(sid)}, {'$set': request.json})
-        except ValueError, error:
-            # Return 400 status and error from validation.
-            return HTTPResponse(status=400, output=error)
+        user = mongodb.users.find_one({'username': username}, {'_id': 1})
+        if user:
+            if session_user in [username, 'admin']:
+                try:
+                    # Validate json data from request.
+                    validictory.validate(request.json, schedule_schema)
+                    # Update schedule
+                    if 'courses' not in request.json.keys():
+                        # Clears all courses from schedule document if courses is
+                        # not in the json object in the request.
+                        request.json['courses'] = []
+                    pprint(request.json)
+                    mongodb.schedules.update({'_id': ObjectId(sid)}, {'$set': request.json})
+                except ValueError, error:
+                    # Return 400 status and error from validation.
+                    return HTTPResponse(status=400, output=error)
 
-        response.status = 204
-        response.headers['location'] = '/api/users/%s/schedules/%s' % (username, sid)
-        return
+                response.status = 204
+                response.headers['location'] = '/api/users/%s/schedules/%s' % (username, sid)
+                return
+            else:
+                return HTTPResponse(status=401, output="You do not have permission.")
+        else:
+            return HTTPResponse(status=401, output="Not a valid user.")
     else:   # Access Denied
         return HTTPResponse(status=401, output="Yeah, if you could log in, that'd be great")
 
