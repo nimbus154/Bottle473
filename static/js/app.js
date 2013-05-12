@@ -28,32 +28,21 @@ App.ObjectRetriever = Ember.Mixin.create({
 });
 
 App.YearSchedule = Ember.Object.extend({
-    // essentially, an organized collection of terms
     year: null,
-    terms: [],
-    save: function() {
-        // client schedule and server schedule are different objects
-        // server schedule ~= client-side term
-        var year, termSchedule = {}, context = this;
-        year = this.get('year');
-
-        this.get('terms').forEach(function(term) {
-           term.save();
-        });
-    }
+    semesters: []
 });
 
-App.TermSchedule = Ember.Object.extend({
+App.SemesterSchedule = Ember.Object.extend({
     // corresponds to the REST API's definition of a schedule
     // Aggregates classes
     // Should always be side of a schedule
     id: null,
     year: null,
-    term: null,
+    semester: null,
     courses: [],
     url: '/api/users/' + 'admin' + '/schedules',
     createRecord: function() {
-        // create an empty term on the server
+        // create an empty schedule on the server
         var _this = this;
         if(this.get('id')) {
             throw new Error("Object already exists on server!");
@@ -89,26 +78,26 @@ App.TermSchedule = Ember.Object.extend({
             data: this.serialize(),
             success: function() { 
                 console.log("Saved " + _this.get('year') 
-                    + " " + _this.get('term'));
+                    + " " + _this.get('semester'));
             },
             error: function() {
                 console.log("Saved " + _this.get('year') 
-                    + " " + _this.get('term'));
+                    + " " + _this.get('semester'));
             }
         });
     }.observes('id'), // auto save once ID is set
     serialize: function() {
-        var termSchedule = {};
-        termSchedule.semester = this.get('term');
-        termSchedule.year = this.get('year');
-        termSchedule.user_id = this.get('user_id');
-        termSchedule.courses = this.get('courses');
+        var schedule = {};
+        schedule.semester = this.get('term');
+        schedule.year = this.get('year');
+        schedule.user_id = this.get('user_id');
+        schedule.courses = this.get('courses');
 
-        return JSON.stringify(termSchedule);
+        return JSON.stringify(schedule);
     }
 });
 
-App.Terms = [
+App.SemestersEnum = [
     'FALL',
     'WINTER',
     'SPRING',
@@ -125,7 +114,7 @@ App.Course = Ember.Object.extend({
 
 // pattern borrowed from
 // http://stackoverflow.com/questions/12064765/initialization-with-serialize-deserialize-ember-js
-App.DepartmentFetcher = Ember.Object.createWithMixins(App.ObjectRetriever, {
+App.CourseCatalogFetcher = Ember.Object.createWithMixins(App.ObjectRetriever, {
     url: '/departments',
     all: function() {
         return this.getObjects(this.url);
@@ -139,14 +128,37 @@ App.DepartmentFetcher = Ember.Object.createWithMixins(App.ObjectRetriever, {
 App.ScheduleStore = Ember.Object.createWithMixins(App.ObjectRetriever, {
     user: null,
     url: '/api/users/' + 'admin' + '/schedules',
-    all: function() {
-        // retrieve all objects, then instantiate them as Ember objects
-        return this.getObjects(this.url, function(array) {
-            console.log(array);
-            // start app
+    Schedules: function(callback) {
+        // returns a hash of schedules by year
+        // Each year is hashed by semester/term
+        var schedules = [];
+        var _this = this;
+        this.getObjects(this.url, function(rawSchedules) {
             // TODO handle ajax schedule load fail
-            App.advanceReadiness();
+            if(rawSchedules.length > 0) {
+                var deserializedList = _this.deserializeList(rawSchedules);
+                // asynchronously inflate the "schedules" array
+                deserializedList.forEach(function(item) {
+                    schedules.addObject(item);
+                });
+            }
+            callback();
         });
+        return schedules;
+    },
+    deserializeList: function(schedules) {
+        // Transform a list of server schedule objects into a hash
+        var yearSchedules = [];
+        var years = schedules.map(function(item) {
+            return item.year;
+        }).uniq();
+        // create year hashes in the schedules object
+        years.forEach(function(item) {
+            var yearSchedule = App.YearSchedule.create(item);
+            yearSchedule.set('semesters', schedules.filterProperty('year', item));
+            yearSchedules.addObject(yearSchedule);
+        });
+        return yearSchedules;
     },
     createYear: function(year) {
         // create a new schedule year
@@ -157,17 +169,12 @@ App.ScheduleStore = Ember.Object.createWithMixins(App.ObjectRetriever, {
         yearSchedule.set('year', year);
 
         // create fall, winter, spring, summer terms
-        App.Terms.forEach(function(term) {
-            console.log(term);
-            console.log(year);
-
-            var termSchedule = App.TermSchedule.create();
-            termSchedule.set('year', year);
-            termSchedule.set('term', term);
-            termSchedule.createRecord(); // create server record
-            yearSchedule.get('terms').addObject(termSchedule);
-
-            console.log(yearSchedule.get('terms').length);
+        App.SemestersEnum.forEach(function(term) {
+            var semesterSchedule = App.SemesterSchedule.create();
+            semesterSchedule.set('year', year);
+            semesterSchedule.set('semester', term);
+            semesterSchedule.createRecord(); // create server record
+            yearSchedule.get('semesters').addObject(semesterSchedule);
         });
 
         return yearSchedule;
@@ -175,7 +182,12 @@ App.ScheduleStore = Ember.Object.createWithMixins(App.ObjectRetriever, {
 });
 
 // get a list of all user schedules
-App.schedules = App.ScheduleStore.all();
+// This call kicks off the application once data is fetched
+// App.advanceReadiness is passed as a callback, to be invoked once data is
+// fetched.
+App.schedules = App.ScheduleStore.Schedules(function() {
+    App.advanceReadiness();
+});
 
 /////////////////////////
 //        VIEWS        //
@@ -209,6 +221,10 @@ App.TermView = Ember.View.extend({
     }
 });
 
+/////////////////////////
+// ROUTES, CONTROLLERS //
+/////////////////////////
+
 // TODO handle year not found
 App.Router.map(function() {
     this.resource('schedule', {path: '/schedule/:year'});
@@ -217,20 +233,18 @@ App.Router.map(function() {
 App.IndexRoute = Ember.Route.extend({
     renderTemplate: function() {
         var startingSchedule, thisYear = new Date().getFullYear();
-
-        if(App.schedules.length == 0) {
-            console.log("Schedules not found");
+        if(App.schedules.length === 0) {
+            // create a year if user has no schedules
+            console.log("NO schedules found");
             startingSchedule = App.ScheduleStore.createYear(thisYear);
             App.schedules.addObject(startingSchedule);
-            console.log(App.schedules);
-            console.log(startingSchedule);
         }
         else {
-            // if this year, get schedule for this year
+            // Retrieve existing schedule, preferably for this year
             console.log("Schedules found");
-            startingSchedule = App.schedules.find(function(item) {
-                return item.year == thisYear;
-            });
+            // TODO handle if this year doesn't exist
+            startingSchedule = App.schedules.findProperty('year', thisYear);
+            console.log(startingSchedule);
         }
         this.transitionTo('schedule', startingSchedule);
     }
@@ -242,12 +256,8 @@ App.ScheduleRoute = Ember.Route.extend({
     },
     model: function(params) {
         console.log("Items");
-        //App.schedules.findProperty('year', params.year); might work too
-        var model = App.schedules.find(function(item) {
-            console.log("Item year: " + item.year);
-            console.log("Params year: " + params.year);
-            return item.year == params.year;
-        });
+        // TODO handle if year doesn't exist
+        var model = App.schedules[params.year] 
         console.log(model);
         return model;
     },
@@ -257,7 +267,7 @@ App.ScheduleRoute = Ember.Route.extend({
 });
 
 App.CourseCatalogController = Ember.ArrayController.extend({
-    classes: App.DepartmentFetcher.courses('cpsc')
+    classes: App.CourseCatalogFetcher.courses('cpsc')
 });
 
 App.ScheduleController = Ember.ObjectController.extend();
