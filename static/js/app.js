@@ -242,9 +242,7 @@ App.IndexRoute = Ember.Route.extend({
             // Retrieve existing schedule, preferably for this year
             console.log("Schedules found");
             // TODO handle if this year doesn't exist
-            console.log(App.schedules);
             startingSchedule = App.schedules.findProperty('year', thisYear);
-            console.log(startingSchedule);
         }
         this.transitionTo('schedule', startingSchedule);
     }
@@ -255,11 +253,16 @@ App.ScheduleRoute = Ember.Route.extend({
         controller.set('content', model);
     },
     model: function(params) {
-        console.log("Items");
+        var model, yearParam;
+        try {
+            yearParam = parseInt(params.year);
+            model = App.schedules.findProperty('year', parseInt(params.year));
+            return model;
+        }
+        catch(Error) {
         // TODO handle if year doesn't exist
-        var model = App.schedules.findProperty('year', params.year);
-        console.log(model);
-        return model;
+            throw Error("Error with parameters");
+        }
     },
     serialize: function(model) {
         return { 'year': model.year };
