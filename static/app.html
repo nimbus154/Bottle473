@@ -38,8 +38,10 @@
             </div>
             <ul>
             {{#each classes}}{{! this = list of classes }}
-                {{! this = the current class }}
-                <li>{{ department }}-{{ number }}</li>
+                {{#view App.CatalogCourseView}}
+                    {{! this = the current class }}
+                    <li>{{ department }}-{{ number }}</li>
+                {{/view}}
             {{/each}}
             </ul>
 		</script>
@@ -58,21 +60,21 @@
             <div id='schedule_block'>
                 {{#each semesters}}
                     {{! this = current semester }}
-                    {{ render semester this }}
+                    {{view App.SemesterView contentBinding="this"}}
                 {{/each}}
             </div>
 		</script>
 
 		<script type="text/x-handlebars" id="semester" data-template-name="semester">
-			<div {{bindAttr id='semester'}} class='student_schedule'>
+            <div {{bindAttr id='semester'}} class='student_schedule'>
 				<div id='schedule_block_header'></div>
 				{{#each courses}}
-					{{view App.ClassView contentBinding="this"}}
+					{{view App.CourseView contentBinding="this"}}
 				{{/each}}
 			</div>
 		</script>
 
-		<script type="text/x-handlebars" id="class" data-template-name="class">
+		<script type="text/x-handlebars" id="course" data-template-name="course">
 			<div id='class_object'>
 				<ul>
 					<li id='class_name'>
@@ -92,8 +94,7 @@
 
 		<script src="/static/js/libs/jquery-1.9.1.js"></script>
 		<script src="/static/js/libs/handlebars-1.0.0-rc.3.js"></script>
-		<script src="/static/js/libs/ember-latest.js"></script>
-        <script src="/static/js/libs/ember-data-latest.js"></script>
+        <script src="/static/js/libs/ember-latest.js"></script>
 		<script src="/static/js/app.js"></script>
 	</body>
 </html>
