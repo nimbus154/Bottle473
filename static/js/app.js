@@ -10,7 +10,7 @@ App.deferReadiness();
 // MODELS AND DATASTORE //
 //////////////////////////
 
-// mixin to extract common ajax retrieval
+// mixin to extract common ajax retrieval functions
 App.ObjectRetriever = Ember.Mixin.create({
     getObjects: function(url, successCallback) {
         var array = [];
@@ -27,15 +27,14 @@ App.ObjectRetriever = Ember.Mixin.create({
     find: null // retrieve an object
 });
 
+// helper object for grouping semesters by year
 App.YearSchedule = Ember.Object.extend({
     year: null,
     semesters: []
 });
 
+// core business object, represents a student's schedule for a semester
 App.SemesterSchedule = Ember.Object.extend({
-    // corresponds to the REST API's definition of a schedule
-    // Aggregates classes
-    // Should always be side of a schedule
     id: null,
     year: null,
     semester: null,
@@ -97,6 +96,7 @@ App.SemesterSchedule = Ember.Object.extend({
     }
 });
 
+// Possible semesters
 App.SemestersEnum = [
     'FALL',
     'WINTER',
@@ -104,16 +104,14 @@ App.SemestersEnum = [
     'SUMMER'
 ];
 
+// course associated with a semester
 App.Course = Ember.Object.extend({
-    // course associated with a term
     name: null,
     number: null,
     dept: null,
     prereqs: []
 });
 
-// pattern borrowed from
-// http://stackoverflow.com/questions/12064765/initialization-with-serialize-deserialize-ember-js
 App.CourseCatalogFetcher = Ember.Object.createWithMixins(App.ObjectRetriever, {
     url: '/api/departments',
     all: function() {
@@ -125,6 +123,8 @@ App.CourseCatalogFetcher = Ember.Object.createWithMixins(App.ObjectRetriever, {
     }
 });
 
+// This "return empty object, then inflate via observers" pattern is inspired by
+// http://stackoverflow.com/questions/12064765/initialization-with-serialize-deserialize-ember-js
 App.ScheduleStore = Ember.Object.createWithMixins(App.ObjectRetriever, {
     user: null,
     url: '/api/users/' + 'admin' + '/schedules',
@@ -155,7 +155,16 @@ App.ScheduleStore = Ember.Object.createWithMixins(App.ObjectRetriever, {
         // create year hashes in the schedules object
         years.forEach(function(item) {
             var yearSchedule = App.YearSchedule.create({ year: item });
-            yearSchedule.set('semesters', schedules.filterProperty('year', item));
+
+            var semesters = schedules.filterProperty('year', item).map(function(item) {
+                return App.SemesterSchedule.create(item);
+            }).sort(function(a, b) {
+                var aOrder = App.SemestersEnum.indexOf(a.get('semester'));
+                var bOrder = App.SemestersEnum.indexOf(b.get('semester'));
+                return aOrder - bOrder;
+            });
+            console.log("Schedules returned: ", semesters);
+            yearSchedule.set('semesters', semesters);
             yearSchedules.addObject(yearSchedule);
         });
         return yearSchedules;
@@ -192,20 +201,34 @@ App.schedules = App.ScheduleStore.Schedules(function() {
 //        VIEWS        //
 /////////////////////////
 
-// thanks to http://jsfiddle.net/ud3323/5uX9H/ for drag n' drop tips
-App.ClassView = Ember.View.extend({
-    templateName: 'class',
+App.Draggable = Ember.Mixin.create({
     attributeBindings: 'draggable',
     draggable: 'true',
     dragStart: function(event) {
         var dataTransfer = event.dataTransfer;
         var course = this.get('context'); // the item being dragged
         dataTransfer.setData('application/json', JSON.stringify(course));
+        console.log("Dragging: ", course);
+    }
+});
+
+// thanks to http://jsfiddle.net/ud3323/5uX9H/ for drag n' drop tips
+App.CourseView = Ember.View.extend(App.Draggable, {
+    templateName: 'course'
+});
+
+// defined inline
+App.CatalogCourseView = Ember.View.extend(App.Draggable, {
+    drop: function(event) {
+        console.log("dropped");
     }
 });
 
 App.SemesterView = Ember.View.extend({
     templateName: 'semester',
+    click: function() {
+        console.log("Clicked");
+    },
     dragOver: function(event) {
         event.preventDefault();
         return false;
@@ -213,9 +236,9 @@ App.SemesterView = Ember.View.extend({
     drop: function(event) {
         event.preventDefault();
         var rawData = event.dataTransfer.getData('application/json');
-        var course = App.Class.create(JSON.parse(rawData));
-        console.log(this.get('controller'));
-        this.get('controller').add(course);
+        var targetSemester = event.target.id;
+        var course = App.Course.create(JSON.parse(rawData));
+        this.get('controller').add(course, targetSemester);
         return false;
     }
 });
@@ -229,6 +252,7 @@ App.Router.map(function() {
     this.resource('schedule', {path: '/schedule/:year'});
 });
 
+// /
 App.IndexRoute = Ember.Route.extend({
     renderTemplate: function() {
         var startingSchedule, thisYear = new Date().getFullYear();
@@ -248,6 +272,7 @@ App.IndexRoute = Ember.Route.extend({
     }
 });
 
+// /schedule/<year>
 App.ScheduleRoute = Ember.Route.extend({
     setupController: function(controller, model) {
         controller.set('content', model);
@@ -255,9 +280,8 @@ App.ScheduleRoute = Ember.Route.extend({
     model: function(params) {
         var model, yearParam;
         yearParam = parseInt(params.year); // TODO check for NaN
-        model = App.schedules.findProperty('year', parseInt(params.year));
-        console.log("Model chosen");
-        console.log(model);
+        model = App.schedules.findProperty('year', yearParam);
+        // TODO fix model not found
         return model;
     },
     serialize: function(model) {
@@ -265,23 +289,32 @@ App.ScheduleRoute = Ember.Route.extend({
     }
 });
 
+// Holds data for the list of courses on the left side of the screen
 App.CourseCatalogController = Ember.ArrayController.extend({
     classes: App.CourseCatalogFetcher.courses('cpsc')
 });
 
-App.TermController = Ember.ObjectController.extend({
-    add: function(course) {
-        console.log('Adding ');
-        console.log(course);
-        var inList = this.get('classes').find(function(item) {
+App.ScheduleController = Ember.ObjectController.extend({
+    add: function(course, semesterName) {
+        console.log('Adding ', course);
+        var semester = this.get('content.semesters').findProperty('semester', semesterName);
+        console.log("Found semesters", semester.get('semester'));
+        console.log(semester);
+        var inList = semester.get('courses').find(function(item) {
             return item.get('dept') === course.get('dept') && 
                     item.get('number') === course.get('number'); 
         });
         if(!inList) {
-            this.get('classes').addObject(course);
+            // TODO first search through other semesters in same year and remove
+            // class
+            console.log("semester", semester.get('semester'));
+            console.log(semester);
+            semester.get('courses').addObject(course);
+            semester.save();
         }
     },
     remove: function(course) {
-        this.get('classes').removeObject(course);
+        this.get('courses').removeObject(course);
+        this.save();
     }
 });
