@@ -147,27 +147,40 @@ App.ScheduleStore = Ember.Object.createWithMixins(App.ObjectRetriever, {
         return schedules;
     },
     deserializeList: function(schedules) {
-        // Transform a list of server schedule objects into a hash
+        // Transform a list of server schedules into a YearSchedule
         var yearSchedules = [];
+        var _this = this;
         var years = schedules.map(function(item) {
             return item.year;
         }).uniq();
-        // create year hashes in the schedules object
         years.forEach(function(item) {
             var yearSchedule = App.YearSchedule.create({ year: item });
 
             var semesters = schedules.filterProperty('year', item).map(function(item) {
-                return App.SemesterSchedule.create(item);
+                return _this.deserializeSemester(item);
             }).sort(function(a, b) {
+                // sort order: Fall, Winter, Spring, Summer
                 var aOrder = App.SemestersEnum.indexOf(a.get('semester'));
                 var bOrder = App.SemestersEnum.indexOf(b.get('semester'));
                 return aOrder - bOrder;
             });
-            console.log("Schedules returned: ", semesters);
+
             yearSchedule.set('semesters', semesters);
             yearSchedules.addObject(yearSchedule);
         });
         return yearSchedules;
+    },
+    deserializeSemester: function(rawSemester) {
+        var semester = App.SemesterSchedule.create({
+            semester: rawSemester.semester,
+            year: rawSemester.year
+        });
+        semester.set('id', this.url + '/' + rawSemester.id);
+        var courses = rawSemester.courses.map(function(course) {
+            return App.Course.create(course);
+        });
+        semester.set('courses', courses);
+        return semester;
     },
     createYear: function(year) {
         // create a new schedule year
@@ -265,8 +278,11 @@ App.IndexRoute = Ember.Route.extend({
         else {
             // Retrieve existing schedule, preferably for this year
             console.log("Schedules found");
-            // TODO handle if this year doesn't exist
             startingSchedule = App.schedules.findProperty('year', thisYear);
+
+            if(!startingSchedule) {
+                startingScehdule = App.schedules[0];
+            }
         }
         this.transitionTo('schedule', startingSchedule);
     }
@@ -282,6 +298,9 @@ App.ScheduleRoute = Ember.Route.extend({
         yearParam = parseInt(params.year); // TODO check for NaN
         model = App.schedules.findProperty('year', yearParam);
         // TODO fix model not found
+        if(!model) {
+            this.transitionTo('/');
+        }
         return model;
     },
     serialize: function(model) {
