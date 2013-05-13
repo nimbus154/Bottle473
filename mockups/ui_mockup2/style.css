@@ -171,17 +171,42 @@ body:before{
 }
 #class_list li{
 	display:block;
-	width:150px;
+	width:140px;
 	height:25px;
 	border:1px solid #000;
 	padding-top:5px;
-	margin-top:5px;
+	margin-top:10px;
 	border-radius: 5px 5px 5px 5px;
 	background: #000;
 	color: #fff;
 }
 #class_list li:hover{
 	box-shadow: 0px 0px 2px 2px #4bbaeb; 
+}
+#class_list li:nth-child(odd){
+	cursor: move;
+}
+#class_list li:nth-child(even){
+	display: block;
+	float:right;
+	background: #ccc;
+	width: 30px;
+	height: 20px;
+	text-align: center;
+	text-transform: uppercase;
+	font-size:0.6em;
+	padding-top:7px;
+	margin-top: -25px;
+	margin-right: 2px;
+	color: #000;
+	border-radius: 5px 5px 5px 5px;
+}
+#class_list li:nth-child(even):hover{
+	box-shadow: 0px 0px 1px 1px #eb804b;
+}
+#class_list .info_box{
+	color: #000;
+	text-decoration: none;
 }
 #schedule_container{
 	display:block;
@@ -289,7 +314,7 @@ body:before{
 	margin-left:5px;
 }
 #class_object:hover{
-	box-shadow: 0px 0px 2px 2px #4bbaeb; 
+	box-shadow: 0px 0px 2px 2px #4bbaeb;
 }
 #class_object ul{
 	display:block;
@@ -308,6 +333,7 @@ body:before{
 	border-radius: 0px 8px 8px 0px;
 	z-index:1;
 	position: relative;
+	cursor: move;
 }
 #class_name .class_name_text{
 	display:block;
@@ -326,6 +352,7 @@ body:before{
 	margin-left:-5px;
 	margin-top:-16px;
 	z-index:2;
+	cursor: pointer;
 }
 #class_info:hover{
 	box-shadow: inset 0px 0px 1px 1px #eb804b;
@@ -335,6 +362,10 @@ body:before{
 	display:block;
 	font-size:1.25em;
 	padding-top:7px;
+}
+#class_info a{
+	color: #000;
+	text-decoration:none;
 }
 #class_delete{
 	display:block;
@@ -380,6 +411,19 @@ body:before{
 }
 
 /* LOGIN PAGE STYLE */
+#warning_box{
+	display:none;
+    height:25px;
+    width:500px;
+	margin:0 auto;
+    padding-left:20px;
+	padding-right:20px;
+	padding-bottom:20px;
+    background-color: #FF4848;
+	border:1px dotted #000;
+    border-radius: 3px;
+	text-align:center;
+}
 #tagline{
     width: 400px;
     position: relative;
@@ -449,7 +493,7 @@ body:before{
     color: #fff;
 
 }
-.login input[type=text]:hover, .login input[type=password]:hover, .login label:hover ~ input[type=text], .login label:hover ~ input[type=password]{
+.login input[type=text]:hover, .login input[type=password]:hover{
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#7d7e7d), color-stop(100%,#0e0e0e));
 	background: -webkit-linear-gradient(top, #7d7e7d 0%,#0e0e0e 100%);
 }
@@ -490,10 +534,62 @@ body:before{
     border-color: rgba(0,0,0,0.9);
 }
 
-/* REGISTER BUTTON */
+/* REGISTER */
+.register{
+    font-weight:400;
+    width: 300px;
+    position: relative;
+    margin: 30px auto 30px;
+    padding: 10px;
+    overflow: hidden;
+    background: #f6f6f6;
+    border-radius: 0.4em;
+    border: 1px solid #191919;
+    box-shadow: 
+        inset 0 0 2px 1px rgba(255,255,255,0.08), 
+        0 16px 10px -8px rgba(0, 0, 0, 0.6);
+}
+.register label{
+    width: 50%;
+    float: left;
+    padding-top: 9px;
+    color: #000;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-shadow: 0 1px 0 #000;
+    text-indent: 10px;
+    font-weight: 400;
+}
+.register input[type=text], .register input[type=password]{
+    width: 50%;
+    float: left;
+    padding: 8px 5px;
+    margin-bottom: 10px;
+    font-size: 12px;
+    background: #000;
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#45484d), color-stop(100%,#000000));
+	background: -webkit-linear-gradient(top, #45484d 0%,#000000 100%);
+    border: 1px solid #000;
+    box-shadow:
+        0 1px 0 rgba(255,255,255,0.1);
+    border-radius: 3px;
+    color: #fff;
+
+}
+.register input[type=text]:hover, .register input[type=password]:hover{
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#7d7e7d), color-stop(100%,#0e0e0e));
+	background: -webkit-linear-gradient(top, #7d7e7d 0%,#0e0e0e 100%);
+}
+.register input[type=text]:focus, .register input[type=password]:focus{
+    box-shadow: inset 0 0 2px #000;
+    background: #000;
+    border-color: #4bbaeb;
+    outline: none;
+}
 .register input[type=submit]{
     width: 150px;
-	margin-left:435px;
+	margin-left:75px;
     padding: 8px 5px;
     border: 1px solid #0273dd;
     border: 1px solid rgba(0,0,0,0.4);

@@ -2,7 +2,67 @@
 	<head>
 		<title>CPSC-473 Project 3</title>
 		<link rel='stylesheet' href='style.css' type='text/css'>
-		<!-- throw in some jquery to make the magic happen -->
+		<script src='js/jquery-2.0.0.min.js' type="text/javascript"></script>
+		<script type="text/javascript">
+			function validate(){
+				var username=document.forms["login"]["username"].value;
+				var IsEmail=username.indexOf("@");
+				var password=document.forms["login"]["password"].value;
+				if(username==null || password==null || username=="" || password==""){
+					$('#warning_box').show();
+					$('#warning_box').html("<p>Fields cannot be blank!</p>");
+					return false;
+				}
+				if(IsEmail<1){
+					$('#warning_box').show();
+					$('#warning_box').html("<p>Invalid email address.</p>");
+					return false;
+				}
+				if(IsEmail>1 &&  password!=null){
+					$.ajax({
+						type: "POST",
+						dataType: "json",
+						url: "/api/sessions",
+						data: { 'username': username, 'password': password}
+					}).done(function(message)){
+						alert("success!" + message);
+					});
+					return true;
+				}
+			}
+			function register(){
+				var username=document.forms["register"]["username"].value;
+				var IsEmail=username.indexOf("@");
+				var password=document.forms["register"]["password"].value;
+				var confirm_password=document.forms["register"]["confirm_password"].value;
+				if(username==null || password==null || confirm_password==null || username=="" || password=="" || confirm_password==""){
+					$('#warning_box').show();
+					$('#warning_box').html("<p>Fields cannot be blank!</p>");
+					return false;
+				}
+				if(IsEmail<1){
+					$('#warning_box').show();
+					$('#warning_box').html("<p>Invalid email address.</p>");
+					return false;
+				}
+				if(password!=confirm_password){
+					$('#warning_box').show();
+					$('#warning_box').html("<p>Passwords must match!</p>");
+					return false;
+				}
+				if(IsEmail>1 &&  password==confirm_password){
+					$.ajax({
+						type: "POST",
+						dataType: "json",
+						url: "/api/users",
+						data: { 'username': username, 'password': password}
+					}).done(function(message)){
+						alert("success!" + message);
+					});
+					return true;
+				}
+			}
+		</script>
 	</head>
 	<body>
 		<div id='container'>
@@ -14,11 +74,14 @@
 					Welcome back!
 				</p>
 			</div>
+			<div id='warning_box'>
+				text
+			</div>
 			<div id='login_box'>
-				<form class="login" method="POST" action="submit">
+				<form name="login" class="login" method="POST" onsubmit="return validate()">
 				    <p class="clearfix">
-				        <label for="login">Username</label>
-				        <input type="text" name="login" id="login" placeholder="Username">
+				        <label for="username">Username</label>
+				        <input type="text" name="username" id="username" placeholder="Username">
 				    </p>
 				    <p class="clearfix">
 				        <label for="password">Password</label>
@@ -35,7 +98,19 @@
 				</p>
 			</div>
 			<div id='register_box'>
-				<form class="register" method="POST" action="submit">
+				<form name="register" class="register" method="POST" onsubmit="return register()">
+				    <p class="clearfix">
+				        <label for="username">Username</label>
+				        <input type="text" name="username" id="username" placeholder="Username">
+				    </p>
+				    <p class="clearfix">
+				        <label for="password">Password</label>
+				        <input type="password" name="password" id="password" placeholder="Password"> 
+				    </p>
+				    <p class="clearfix">
+				        <label for="password"></label>
+				        <input type="password" name="confirm_password" id="confirm_password" placeholder="Confirm Password"> 
+				    </p>
 				    <p class="clearfix">
 				        <input type="submit" name="submit" value="Register">
 				    </p>       
