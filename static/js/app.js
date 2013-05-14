@@ -67,6 +67,12 @@ App.SemesterSchedule = Ember.Object.extend({
             }
         });
     },
+    findCourse: function(dept, number) {
+        return  this.get('courses').find(function(course) {
+            return course.get('department') === dept && 
+                    course.get('number') === number;
+        });
+    },
     save: function() {
         var _this = this;
         console.log('saving...');
@@ -110,7 +116,7 @@ App.SemestersEnum = [
 App.Course = Ember.Object.extend({
     name: null,
     number: null,
-    dept: null,
+    department: null,
     prereqs: []
 });
 
@@ -223,13 +229,23 @@ App.Draggable = Ember.Mixin.create({
         var dataTransfer = event.dataTransfer;
         var course = this.get('context'); // the item being dragged
         dataTransfer.setData('application/json', JSON.stringify(course));
-        console.log("Dragging: ", course);
     }
 });
 
 // thanks to http://jsfiddle.net/ud3323/5uX9H/ for drag n' drop tips
 App.CourseView = Ember.View.extend(App.Draggable, {
-    templateName: 'course'
+    templateName: 'course', 
+    dragStart: function(event) {
+        var dataTransfer = event.dataTransfer;
+        var course = this.get('context'); // the item being dragged
+
+        // this hack is note which list the item came from
+        var sourceList = $('#' + event.target.id).parent().attr('id');
+        // set as hash so it doesn't affect the ember object
+        course['source'] = sourceList; 
+
+        dataTransfer.setData('application/json', JSON.stringify(course));
+    }
 });
 
 
@@ -253,10 +269,12 @@ App.SemesterView = Ember.View.extend({
     },
     drop: function(event) {
         event.preventDefault();
-        var rawData = event.dataTransfer.getData('application/json');
+        var rawData = JSON.parse(event.dataTransfer.getData('application/json'));
         var targetSemester = event.target.id;
-        var course = App.Course.create(JSON.parse(rawData));
-        this.get('controller').add(course, targetSemester);
+        var sourceSemester = rawData.source;
+        delete rawData.source;
+        var course = App.Course.create(rawData);
+        this.get('controller').add(course, targetSemester, sourceSemester);
         return false;
     }
 });
@@ -338,20 +356,20 @@ App.CourseCatalogController = Ember.ArrayController.extend({
 });
 
 App.ScheduleController = Ember.ObjectController.extend({
-    add: function(course, semesterName) {
-        console.log('Adding ', course);
-        var semester = this.get('content.semesters').findProperty('semester', semesterName);
-        console.log("Found semesters", semester.get('semester'));
-        console.log(semester);
-        var inList = semester.get('courses').find(function(item) {
-            return item.get('dept') === course.get('dept') && 
-                    item.get('number') === course.get('number'); 
-        });
+    add: function(course, target, source) {
+        var semester = this.get('content.semesters').findProperty('semester', target);
+        var inList = semester.findCourse(course.get('department'), course.get('number'));
         if(!inList) {
-            // TODO first search through other semesters in same year and remove
-            // class
-            console.log("semester", semester.get('semester'));
-            console.log(semester);
+            // remove from source
+            if(source) {
+                var sourceTerm = this.get('content.semesters').findProperty('semester', source);
+                // find course
+                var oldCourse = sourceTerm.findCourse(course.get('department'), course.get('number'));
+                sourceTerm.get('courses').removeObject(oldCourse);
+                sourceTerm.save();
+            }
+            
+            // add to target
             semester.get('courses').addObject(course);
             semester.save();
         }
