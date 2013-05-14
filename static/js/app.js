@@ -270,8 +270,8 @@ App.SemesterView = Ember.View.extend({
     drop: function(event) {
         event.preventDefault();
         var rawData = JSON.parse(event.dataTransfer.getData('application/json'));
-        var targetSemester = event.target.id;
         var sourceSemester = rawData.source;
+        var targetSemester = this.get('context');
         delete rawData.source;
         var course = App.Course.create(rawData);
         this.get('controller').add(course, targetSemester, sourceSemester);
@@ -357,10 +357,9 @@ App.CourseCatalogController = Ember.ArrayController.extend({
 
 App.ScheduleController = Ember.ObjectController.extend({
     add: function(course, target, source) {
-        var semester = this.get('content.semesters').findProperty('semester', target);
-        var inList = semester.findCourse(course.get('department'), course.get('number'));
+        var inList = target.findCourse(course.get('department'), course.get('number'));
         if(!inList) {
-            // remove from source
+            // if item was dragged from another semester
             if(source) {
                 var sourceTerm = this.get('content.semesters').findProperty('semester', source);
                 // find course
@@ -370,8 +369,8 @@ App.ScheduleController = Ember.ObjectController.extend({
             }
             
             // add to target
-            semester.get('courses').addObject(course);
-            semester.save();
+            target.get('courses').addObject(course);
+            target.save();
         }
     },
     remove: function(course) {
