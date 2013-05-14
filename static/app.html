@@ -12,7 +12,11 @@
                     <span id='secondary_buttons'>
                         <ul>
                             <li id='username'>Username</li>
-                            <li id='logout'><a id='logout_text' href='/logout'>Logout</a></li>
+                            <li id='logout'>
+                                {{#view App.LogoutView}}
+                                    <a class='logout_text'>Logout</a>
+                                {{/view}}
+                            </li>
                         </ul>
                     </span>
                 </div>

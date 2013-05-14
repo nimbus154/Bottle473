@@ -5,10 +5,11 @@ var App = Ember.Application.create({
 // wait until we get all schedules; advanceReadiness called in ScheduleStore.all
 App.deferReadiness(); 
 
-
 //////////////////////////
 // MODELS AND DATASTORE //
 //////////////////////////
+
+App.User = 'admin';
 
 // mixin to extract common ajax retrieval functions
 App.ObjectRetriever = Ember.Mixin.create({
@@ -39,7 +40,7 @@ App.SemesterSchedule = Ember.Object.extend({
     year: null,
     semester: null,
     courses: [],
-    url: '/api/users/' + 'admin' + '/schedules',
+    url: '/api/users/' + App.User + '/schedules',
     createRecord: function() {
         // create an empty schedule on the server
         var _this = this;
@@ -127,7 +128,7 @@ App.CourseCatalogFetcher = Ember.Object.createWithMixins(App.ObjectRetriever, {
 // http://stackoverflow.com/questions/12064765/initialization-with-serialize-deserialize-ember-js
 App.ScheduleStore = Ember.Object.createWithMixins(App.ObjectRetriever, {
     user: null,
-    url: '/api/users/' + 'admin' + '/schedules',
+    url: '/api/users/' + App.User + '/schedules',
     Schedules: function(callback) {
         // returns a hash of schedules by year
         // Each year is hashed by semester/term
@@ -256,6 +257,25 @@ App.SemesterView = Ember.View.extend({
         var course = App.Course.create(JSON.parse(rawData));
         this.get('controller').add(course, targetSemester);
         return false;
+    }
+});
+
+// Handle logout
+// Defined inline
+App.LogoutView = Ember.View.extend({
+    click: function() {
+        $.ajax({
+            url: '/api/sessions/' + App.User,
+            type: 'delete',
+            success: function() {
+                // redirect to login page
+                document.location = '/';
+            },
+            error: function() {
+                // redirect to login page
+                document.location = '/';
+            }
+        });
     }
 });
 
