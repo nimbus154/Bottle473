@@ -184,7 +184,7 @@ App.ScheduleStore = Ember.Object.createWithMixins(App.ObjectRetriever, {
         semester.set('courses', courses);
         return semester;
     },
-    createYear: function(year) {
+    createYear: function(year, callback) {
         // create a new schedule year
         var context = this;
         
@@ -372,5 +372,18 @@ App.ScheduleController = Ember.ObjectController.extend({
                 semester.save();
             }
         });
+    },
+    addYear: function() {
+        // get the largest year, add next one
+        App.schedules.sort(function(a, b) {
+            var aYear = a.get('year');
+            var bYear = b.get('year');
+            return aYear - bYear;
+        });
+
+        var newYear = App.schedules[App.schedules.length - 1].get('year') + 1;
+        var newSchedule = App.ScheduleStore.createYear(newYear);
+        App.schedules.addObject(newSchedule);
+        this.transitionToRoute('schedule', newSchedule);
     }
 });
