@@ -10,7 +10,7 @@ App.deferReadiness();
 // MODELS AND DATASTORE //
 //////////////////////////
 
-// mixin to extract common ajax retrieval
+// mixin to extract common ajax retrieval functions
 App.ObjectRetriever = Ember.Mixin.create({
     getObjects: function(url, successCallback) {
         var array = [];
@@ -27,15 +27,14 @@ App.ObjectRetriever = Ember.Mixin.create({
     find: null // retrieve an object
 });
 
+// helper object for grouping semesters by year
 App.YearSchedule = Ember.Object.extend({
     year: null,
     semesters: []
 });
 
+// core business object, represents a student's schedule for a semester
 App.SemesterSchedule = Ember.Object.extend({
-    // corresponds to the REST API's definition of a schedule
-    // Aggregates classes
-    // Should always be side of a schedule
     id: null,
     year: null,
     semester: null,
@@ -97,6 +96,7 @@ App.SemesterSchedule = Ember.Object.extend({
     }
 });
 
+// Possible semesters
 App.SemestersEnum = [
     'FALL',
     'WINTER',
@@ -104,16 +104,14 @@ App.SemestersEnum = [
     'SUMMER'
 ];
 
+// course associated with a semester
 App.Course = Ember.Object.extend({
-    // course associated with a term
     name: null,
     number: null,
     dept: null,
     prereqs: []
 });
 
-// pattern borrowed from
-// http://stackoverflow.com/questions/12064765/initialization-with-serialize-deserialize-ember-js
 App.CourseCatalogFetcher = Ember.Object.createWithMixins(App.ObjectRetriever, {
     url: '/api/departments',
     all: function() {
@@ -125,6 +123,8 @@ App.CourseCatalogFetcher = Ember.Object.createWithMixins(App.ObjectRetriever, {
     }
 });
 
+// This "return empty object, then inflate via observers" pattern is inspired by
+// http://stackoverflow.com/questions/12064765/initialization-with-serialize-deserialize-ember-js
 App.ScheduleStore = Ember.Object.createWithMixins(App.ObjectRetriever, {
     user: null,
     url: '/api/users/' + 'admin' + '/schedules',
@@ -147,18 +147,40 @@ App.ScheduleStore = Ember.Object.createWithMixins(App.ObjectRetriever, {
         return schedules;
     },
     deserializeList: function(schedules) {
-        // Transform a list of server schedule objects into a hash
+        // Transform a list of server schedules into a YearSchedule
         var yearSchedules = [];
+        var _this = this;
         var years = schedules.map(function(item) {
             return item.year;
         }).uniq();
-        // create year hashes in the schedules object
         years.forEach(function(item) {
             var yearSchedule = App.YearSchedule.create({ year: item });
-            yearSchedule.set('semesters', schedules.filterProperty('year', item));
+
+            var semesters = schedules.filterProperty('year', item).map(function(item) {
+                return _this.deserializeSemester(item);
+            }).sort(function(a, b) {
+                // sort order: Fall, Winter, Spring, Summer
+                var aOrder = App.SemestersEnum.indexOf(a.get('semester'));
+                var bOrder = App.SemestersEnum.indexOf(b.get('semester'));
+                return aOrder - bOrder;
+            });
+
+            yearSchedule.set('semesters', semesters);
             yearSchedules.addObject(yearSchedule);
         });
         return yearSchedules;
+    },
+    deserializeSemester: function(rawSemester) {
+        var semester = App.SemesterSchedule.create({
+            semester: rawSemester.semester,
+            year: rawSemester.year
+        });
+        semester.set('id', this.url + '/' + rawSemester.id);
+        var courses = rawSemester.courses.map(function(course) {
+            return App.Course.create(course);
+        });
+        semester.set('courses', courses);
+        return semester;
     },
     createYear: function(year) {
         // create a new schedule year
@@ -192,17 +214,34 @@ App.schedules = App.ScheduleStore.Schedules(function() {
 //        VIEWS        //
 /////////////////////////
 
-// thanks to http://jsfiddle.net/ud3323/5uX9H/ for drag n' drop tips
-App.ClassView = Ember.View.extend({
-    templateName: 'class',
+App.Draggable = Ember.Mixin.create({
     attributeBindings: 'draggable',
     draggable: 'true',
     dragStart: function(event) {
         var dataTransfer = event.dataTransfer;
         var course = this.get('context'); // the item being dragged
         dataTransfer.setData('application/json', JSON.stringify(course));
+        console.log("Dragging: ", course);
     }
 });
+
+// thanks to http://jsfiddle.net/ud3323/5uX9H/ for drag n' drop tips
+App.CourseView = Ember.View.extend(App.Draggable, {
+    templateName: 'course'
+});
+
+
+// defined inline; 
+App.DeleteCourseView = Ember.View.extend({
+    tagName: 'button',
+    click: function(event) {
+        var course = this.get('context');
+        this.get('controller').remove(course);
+    }
+});
+
+// defined inline
+App.CatalogCourseView = Ember.View.extend(App.Draggable);
 
 App.SemesterView = Ember.View.extend({
     templateName: 'semester',
@@ -213,9 +252,9 @@ App.SemesterView = Ember.View.extend({
     drop: function(event) {
         event.preventDefault();
         var rawData = event.dataTransfer.getData('application/json');
-        var course = App.Class.create(JSON.parse(rawData));
-        console.log(this.get('controller'));
-        this.get('controller').add(course);
+        var targetSemester = event.target.id;
+        var course = App.Course.create(JSON.parse(rawData));
+        this.get('controller').add(course, targetSemester);
         return false;
     }
 });
@@ -229,6 +268,7 @@ App.Router.map(function() {
     this.resource('schedule', {path: '/schedule/:year'});
 });
 
+// /
 App.IndexRoute = Ember.Route.extend({
     renderTemplate: function() {
         var startingSchedule, thisYear = new Date().getFullYear();
@@ -241,13 +281,17 @@ App.IndexRoute = Ember.Route.extend({
         else {
             // Retrieve existing schedule, preferably for this year
             console.log("Schedules found");
-            // TODO handle if this year doesn't exist
             startingSchedule = App.schedules.findProperty('year', thisYear);
+
+            if(!startingSchedule) {
+                startingScehdule = App.schedules[0];
+            }
         }
         this.transitionTo('schedule', startingSchedule);
     }
 });
 
+// /schedule/<year>
 App.ScheduleRoute = Ember.Route.extend({
     setupController: function(controller, model) {
         controller.set('content', model);
@@ -255,9 +299,11 @@ App.ScheduleRoute = Ember.Route.extend({
     model: function(params) {
         var model, yearParam;
         yearParam = parseInt(params.year); // TODO check for NaN
-        model = App.schedules.findProperty('year', parseInt(params.year));
-        console.log("Model chosen");
-        console.log(model);
+        model = App.schedules.findProperty('year', yearParam);
+        // TODO fix model not found
+        if(!model) {
+            this.transitionTo('/');
+        }
         return model;
     },
     serialize: function(model) {
@@ -265,23 +311,45 @@ App.ScheduleRoute = Ember.Route.extend({
     }
 });
 
+// Holds data for the list of courses on the left side of the screen
 App.CourseCatalogController = Ember.ArrayController.extend({
     classes: App.CourseCatalogFetcher.courses('cpsc')
 });
 
-App.TermController = Ember.ObjectController.extend({
-    add: function(course) {
-        console.log('Adding ');
-        console.log(course);
-        var inList = this.get('classes').find(function(item) {
+App.ScheduleController = Ember.ObjectController.extend({
+    add: function(course, semesterName) {
+        console.log('Adding ', course);
+        var semester = this.get('content.semesters').findProperty('semester', semesterName);
+        console.log("Found semesters", semester.get('semester'));
+        console.log(semester);
+        var inList = semester.get('courses').find(function(item) {
             return item.get('dept') === course.get('dept') && 
                     item.get('number') === course.get('number'); 
         });
         if(!inList) {
-            this.get('classes').addObject(course);
+            // TODO first search through other semesters in same year and remove
+            // class
+            console.log("semester", semester.get('semester'));
+            console.log(semester);
+            semester.get('courses').addObject(course);
+            semester.save();
         }
     },
     remove: function(course) {
-        this.get('classes').removeObject(course);
+        console.log('Removing', course);
+        var semesters = this.get('content.semesters');
+        semesters.forEach(function(semester) {
+            // this looks insanely dangerous but it isn't
+            // objects have unique identifiers, and so "course"
+            // will only be removed from the term that has that exact instance
+            var courses = semester.get('courses');
+            var startingLength = courses.length;
+            courses.removeObject(course);
+            // save semester if item was removed
+            if(courses.length < startingLength) {
+                console.log("item removed from " + semester.get('semester'));
+                semester.save();
+            }
+        });
     }
 });
