@@ -1,4 +1,5 @@
 from bottle import get, route, request, post, template, redirect, response, Bottle, delete
+from bottle import HTTPResponse
 
 from models import Users
 
@@ -63,7 +64,13 @@ def logout(user):
     response.delete_cookie('session')
     return
     
-    
+@route('/api/sessions', method='GET')
+def get_username():
+    session_user = request.get_cookie('session', secret=secretkey)
+    if session_user:
+        return json.dumps({'username': session_user})
+    return HTTPResponse(status=404)
+
 @route('/api/sessions', method='POST')
 def login():
     # Test script from terminal:
