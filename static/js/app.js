@@ -202,7 +202,8 @@ App.ScheduleStore = Ember.Object.createWithMixins(App.ObjectRetriever, {
         App.SemestersEnum.forEach(function(term) {
             var semesterSchedule = App.SemesterSchedule.create({
                 year: year,
-                semester: term
+                semester: term,
+                courses: []
             });
             semesterSchedule.createRecord(); // create server record
             yearSchedule.get('semesters').addObject(semesterSchedule);
@@ -339,7 +340,6 @@ App.ScheduleRoute = Ember.Route.extend({
         var model, yearParam;
         yearParam = parseInt(params.year); // TODO check for NaN
         model = App.schedules.findProperty('year', yearParam);
-        // TODO fix model not found
         if(!model) {
             this.transitionTo('/');
         }
@@ -359,7 +359,7 @@ App.ScheduleController = Ember.ObjectController.extend({
     add: function(course, target, source) {
         var inList = target.findCourse(course.get('department'), course.get('number'));
         if(!inList) {
-            // if item was dragged from another semester
+            // if item was dragged from another semester, remove it
             if(source) {
                 var sourceTerm = this.get('content.semesters').findProperty('semester', source);
                 // find course
