@@ -26,14 +26,17 @@
 						contentType: "application/json",
 						url: "/api/sessions",
 						data: JSON.stringify({ username: username, password: password}),
-                        success: function(message){
-                            // redirect to application
-					    	document.location = '/app';
-                        },
                         error: function(xhr, status) {
-                            // show error message
-                            $('#warning_box').show();
-                            $('#warning_box').html("<p>" + xhr.statusText + "</p>");
+                            // jQuery 1.9 treats empty response body for json as
+                            // an error, so must listen for it here
+                            if(xhr.status === 201) {
+                                document.location = '/app';
+                            }
+                            else {
+                                // show error message
+                                $('#warning_box').show();
+                                $('#warning_box').html("<p>" + xhr.statusText + "</p>");
+                            }
                         }
 					});
 					return false; // so default behavior doesn't redirect POST
