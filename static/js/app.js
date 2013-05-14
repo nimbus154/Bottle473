@@ -58,6 +58,7 @@ App.SemesterSchedule = Ember.Object.extend({
                 if(xhr.status === 201) {
                     // success, set ID
                     _this.set('id', xhr.getResponseHeader('Location'));
+                    _this.save();
                 }
                 else {
                     // TODO replace with real error handling
@@ -85,7 +86,7 @@ App.SemesterSchedule = Ember.Object.extend({
                     + " " + _this.get('semester'));
             }
         });
-    }.observes('id'), // auto save once ID is set
+    },
     serialize: function() {
         var schedule = {};
         schedule.semester = this.get('semester');
