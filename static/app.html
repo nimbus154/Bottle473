@@ -33,7 +33,15 @@
                     </div>
                 </div>
             </div>
+            <div id="modal"></div>
 		</script>
+		<script type="text/x-handlebars" data-template-name="courseInfo">
+            <h1>{{name}}</h1>
+            <h2>{{department}}-{{number}}</h2>
+            <h3>Description</h3>
+            <p>You really want Robert to scrape the course details
+            too?</p>
+        </script>
 
 		<script type="text/x-handlebars" id="courseCatalog">
             <div id='class_list_header'>
@@ -45,7 +53,11 @@
                 {{#view App.CatalogCourseView}}
                     {{! this = the current class }}
                     <li>{{ department }}-{{ number }}</li>
-					<li class='info_box'>Info</li>
+                    <li class='info_box'>
+                        {{#view App.CatalogCourseInfoView}}
+                            Info
+                        {{/view}}
+                    </li>
                 {{/view}}
             {{/each}}
             </ul>
@@ -91,18 +103,20 @@
 						</span>
 					</li>
 					<li id='class_info'>
+                        {{#view App.CourseInfoView}}
 						<span class='class_info_text'>
 							Info
 						</span>
+                        {{/view}}
 					</li>
                     <li id='class_delete'>{{#view App.DeleteCourseView}}X{{/view}}</li>
 				</ul>
 			</div>
 		</script>
-
 		<script src="/static/js/libs/jquery-1.9.1.js"></script>
 		<script src="/static/js/libs/handlebars-1.0.0-rc.3.js"></script>
         <script src="/static/js/libs/ember-latest.js"></script>
+		<script src="/static/js/libs/jquery.simplemodal.1.4.4.min.js"></script>
 		<script src="/static/js/app.js"></script>
 	</body>
 </html>

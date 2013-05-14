@@ -15,11 +15,19 @@ App.User = 'admin';
 App.ObjectRetriever = Ember.Mixin.create({
     getObjects: function(url, successCallback) {
         var array = [];
-        $.getJSON(url, function(data) {
-            // Ember's observer pattern magic lets this populate everywhere!
-            array.addObjects(data);
-            if(successCallback) {
-                successCallback(array);
+        $.ajax({
+            url: url,
+            dataType: 'json',
+            success: function(data) {
+                // Ember's observer pattern magic lets this populate everywhere!
+                array.addObjects(data);
+                if(successCallback) {
+                    successCallback(array);
+                }
+            },
+            error: function() {
+                // get failed, hard redirect to login
+                document.location = '/';
             }
         });
         return array;
@@ -298,6 +306,23 @@ App.LogoutView = Ember.View.extend({
         });
     }
 });
+
+App.Lightbox = Ember.Mixin.create({
+    click: function() {
+        var view = Ember.View.create({
+            context: this.get('context'),
+            templateName: 'courseInfo'
+        });
+        console.log("Context", this.get('context'));
+        var modal = $('#modal');
+        modal.empty(); // clear old data
+        view.appendTo(modal); // add new view
+        modal.modal(); // render modal dialog
+    }
+});
+
+App.CourseInfoView = Ember.View.extend(App.Lightbox);
+App.CatalogCourseInfoView = Ember.View.extend(App.Lightbox);
 
 /////////////////////////
 // ROUTES, CONTROLLERS //
