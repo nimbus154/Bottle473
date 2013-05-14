@@ -252,6 +252,7 @@ body:before{
 	float:left;
 	color:#ccc;
 	border-left:1px solid #ccc;
+	border-right:1px solid #ccc;
 }
 #year_select li a{
 	color: #fff;
