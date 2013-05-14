@@ -52,6 +52,7 @@ def register():
     response.content_type = 'application/json'
     response.status = 201
     response.set_cookie('session', newUser.username, secret=secretkey)
+    response.set_cookie("username", newUser.username)
     response.headers['Location'] = location
     return
     
@@ -62,6 +63,7 @@ def logout(user):
     # http post localhost:8081/api/sessions/David     
     response.content_type = 'application/json'
     response.delete_cookie('session')
+    response.delete_cookie('username')
     return
     
 @route('/api/sessions', method='GET')
@@ -100,6 +102,7 @@ def login():
         response.content_type = 'application/json'
         response.status = 201
         response.set_cookie('session', username, secret=secretkey)
+        response.set_cookie("username", username)
         response.headers['Location'] = location        
         return
                  
