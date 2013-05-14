@@ -444,7 +444,7 @@ body:before{
 	font-size:0.6em;
 }
 /* LOGIN PAGE STYLE */
-#warning_box{
+#warning_box, #warning_box_register{
 	display:none;
     height:25px;
     width:500px;

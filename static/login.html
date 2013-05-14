@@ -36,39 +36,51 @@
                             $('#warning_box').html("<p>" + xhr.statusText + "</p>");
                         }
 					});
-					return false;
+					return false; // so default behavior doesn't redirect POST
 				}
 			}
-			function register(){
+
+			function register1(){
 				var username=document.forms["register"]["username"].value;
-				var IsEmail=username.indexOf("@");
+				//var IsEmail=username.indexOf("@");
 				var password=document.forms["register"]["password"].value;
 				var confirm_password=document.forms["register"]["confirm_password"].value;
 				if(username==null || password==null || confirm_password==null || username=="" || password=="" || confirm_password==""){
-					$('#warning_box').show();
-					$('#warning_box').html("<p>Fields cannot be blank!</p>");
+					$('#warning_box_register').show();
+					$('#warning_box_register').html("<p>Fields cannot be blank!</p>");
 					return false;
 				}
+                /*
 				if(IsEmail<1){
 					$('#warning_box').show();
 					$('#warning_box').html("<p>Invalid email address.</p>");
 					return false;
 				}
+                */
 				if(password!=confirm_password){
-					$('#warning_box').show();
-					$('#warning_box').html("<p>Passwords must match!</p>");
+					$('#warning_box_register').show();
+					$('#warning_box_register').html("<p>Passwords must match!</p>");
 					return false;
 				}
-				if(IsEmail>1 &&  password==confirm_password){
+				if(/*IsEmail>1 &&*/  password==confirm_password){
 					$.ajax({
 						type: "POST",
-						dataType: "json",
+						contentType: "application/json",
 						url: "/api/users",
-						data: { 'username': username, 'password': password}
-					}).done(function(message){
-						alert("success!" + message);
+						data: JSON.stringify({ 'username': username, 'password': password}),
+                        error: function(xhr, status) {
+                            // jQuery 1.9 treats empty response body for json as
+                            // an error, so must listen for it here
+                            if(xhr.status === 201) {
+                                document.location = '/app';
+                            }
+                            else {
+                                $('#warning_box_register').show();
+                                $('#warning_box_register').html("<p>" + xhr.statusText + "</p>");
+                            }
+                        }
 					});
-					return true;
+					return false; // so button doesn't redirect for us
 				}
 			}
 		</script>
@@ -107,7 +119,8 @@
 				</p>
 			</div>
 			<div id='register_box'>
-				<form name="register" class="register" method="POST" onsubmit="return register()">
+				<form name="register" class="register" method="POST"
+                    onsubmit="return register1()">
 				    <p class="clearfix">
 				        <label for="username">Username</label>
 				        <input type="text" name="username" id="username" placeholder="Username">
@@ -124,6 +137,9 @@
 				        <input type="submit" name="submit" value="Register">
 				    </p>       
 				</form>
+			</div>
+			<div id='warning_box_register'>
+				text
 			</div>
 		</div>
 	</body>
