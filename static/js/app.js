@@ -230,18 +230,21 @@ App.CourseView = Ember.View.extend(App.Draggable, {
     templateName: 'course'
 });
 
-// defined inline
-App.CatalogCourseView = Ember.View.extend(App.Draggable, {
-    drop: function(event) {
-        console.log("dropped");
+
+// defined inline; 
+App.DeleteCourseView = Ember.View.extend({
+    tagName: 'button',
+    click: function(event) {
+        var course = this.get('context');
+        this.get('controller').remove(course);
     }
 });
 
+// defined inline
+App.CatalogCourseView = Ember.View.extend(App.Draggable);
+
 App.SemesterView = Ember.View.extend({
     templateName: 'semester',
-    click: function() {
-        console.log("Clicked");
-    },
     dragOver: function(event) {
         event.preventDefault();
         return false;
@@ -333,7 +336,20 @@ App.ScheduleController = Ember.ObjectController.extend({
         }
     },
     remove: function(course) {
-        this.get('courses').removeObject(course);
-        this.save();
+        console.log('Removing', course);
+        var semesters = this.get('content.semesters');
+        semesters.forEach(function(semester) {
+            // this looks insanely dangerous but it isn't
+            // objects have unique identifiers, and so "course"
+            // will only be removed from the term that has that exact instance
+            var courses = semester.get('courses');
+            var startingLength = courses.length;
+            courses.removeObject(course);
+            // save semester if item was removed
+            if(courses.length < startingLength) {
+                console.log("item removed from " + semester.get('semester'));
+                semester.save();
+            }
+        });
     }
 });
