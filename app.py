@@ -4,7 +4,7 @@ import base
 
 @get('/')
 def welcome():
-    return base.server_static('welcome.html')
+    return base.server_static('login.html')
 
 @get('/app')
 def start_app():
