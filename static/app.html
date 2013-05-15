@@ -20,7 +20,6 @@
                         </ul>
                     </span>
                 </div>
-
 				<div id='schedule_container'>
                     {{ outlet }}
 				</div>
@@ -62,6 +61,13 @@
             {{/each}}
             </ul>
 		</script>
+
+		<script type="text/x-handlebars" id="notfound">
+            <div id="notfound">
+                <h1>This is not the schedule you're looking for.</h1>
+                <p>Please choose one of the schedules from the menu above.</p>
+            </div>
+        </script>
 
 		<script type="text/x-handlebars" id="schedule">
             <div id='schedule_header'>

@@ -487,6 +487,9 @@ body:before{
         inset 0 0 1px 1px rgba(255,255,255,0.08), 
         0 10px 10px -10px rgba(0, 0, 0, 0.6);
 }
+#notfound{
+    text-align: center;
+}
 
 	/* login form original code from: http://tympanus.net/Tutorials/CustomLoginFormStyling/index3.html
 		heavily modified by Jeremy Chavez

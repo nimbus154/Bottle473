@@ -217,7 +217,6 @@ App.ScheduleStore = Ember.Object.createWithMixins(App.ObjectRetriever, {
                           // across calls to this function
                           // ie: on the second call, it would return 8 semesters
         });
-        console.log('num sems in yearSched', yearSchedule.get('semesters').length);
         yearSchedule.set('year', year);
 
         // create fall, winter, spring, summer terms
@@ -262,7 +261,7 @@ App.CourseView = Ember.View.extend(App.Draggable, {
         var dataTransfer = event.dataTransfer;
         var course = this.get('context'); // the item being dragged
 
-        // this hack is note which list the item came from
+        // this hack notes which list the item came from
         var sourceList = $('#' + event.target.id).parent().attr('id');
         // set as hash so it doesn't affect the ember object
         course['source'] = sourceList; 
@@ -345,7 +344,7 @@ App.CatalogCourseInfoView = Ember.View.extend(App.Lightbox);
 // TODO handle year not found
 App.Router.map(function() {
     this.resource('schedule', {path: '/schedule/:year'});
-    this.route('notfound', {path: '/404'});
+    this.route('notfound', {path: '*:'});
 });
 
 // /
@@ -392,6 +391,7 @@ App.CourseCatalogController = Ember.ArrayController.extend({
     classes: App.CourseCatalogFetcher.courses('cpsc')
 });
 
+// Controller for the /schedule/:year route
 App.ScheduleController = Ember.ObjectController.extend({
     add: function(course, target, source) {
         var inList = target.findCourse(course.get('department'), course.get('number'));
