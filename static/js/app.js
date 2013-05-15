@@ -9,7 +9,20 @@ App.deferReadiness();
 // MODELS AND DATASTORE //
 //////////////////////////
 
-App.User = 'admin';
+App.User = null;
+// synchronously retrieve user info from server
+$.ajax({
+    url: '/api/sessions',
+    async: false,
+    dataType: 'json',
+    success: function(data) {
+        App.User = data.username;
+    },
+    error: function() {
+        // error retrieving credentials = not logged in
+        document.location = '/';
+    },
+});
 
 // mixin to extract common ajax retrieval functions
 App.ObjectRetriever = Ember.Mixin.create({
@@ -24,10 +37,6 @@ App.ObjectRetriever = Ember.Mixin.create({
                 if(successCallback) {
                     successCallback(array);
                 }
-            },
-            error: function() {
-                // get failed, hard redirect to login
-                document.location = '/';
             }
         });
         return array;
