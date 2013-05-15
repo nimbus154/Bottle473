@@ -311,7 +311,7 @@ body:before{
 	color: #000;
 	text-decoration:none;
 }
-#year_add a:hover{
+#year_add:hover a{
 	color: #4bbaeb;
 }
 #schedule_block .student_schedule{
