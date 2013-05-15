@@ -133,6 +133,7 @@ body:before{
 }
 #department_button{
 	display:block;
+    cursor: pointer;
 	float:left;
 	height:30px;
 	width:80px;
@@ -153,6 +154,7 @@ body:before{
 }
 #class_button{
 	display:block;
+    cursor: pointer;
 	float:left;
 	height:30px;
 	width:82px;
