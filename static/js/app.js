@@ -64,13 +64,15 @@ App.SemesterSchedule = Ember.Object.extend({
         if(this.get('id')) {
             throw new Error("Object already exists on server!");
         }
-        console.log("Create record called");
         $.ajax({
             url: this.url,
             type: 'post',
+            // async: false, otherwise all four ajax calls for new year creation
+            // get mixed together into one, and only one schedule will be
+            // created
+            async: false,
             // JQuery 1.9 treats empty response bodies as errors
             // 201 create has an empty response body :-/
-            async: false,
             error: function(xhr, status, error) {
                 if(xhr.status === 201) {
                     // success, set ID
@@ -92,8 +94,6 @@ App.SemesterSchedule = Ember.Object.extend({
     },
     save: function() {
         var _this = this;
-        console.log('saving...');
-        console.log(this);
         $.ajax({
             url: this.get('id'),
             type: 'put',
@@ -105,7 +105,8 @@ App.SemesterSchedule = Ember.Object.extend({
                     + " " + _this.get('semester'));
             },
             error: function() {
-                console.log("Saved " + _this.get('year') 
+                // TODO handle error
+                console.log("Error saving " + _this.get('year') 
                     + " " + _this.get('semester'));
             }
         });
@@ -154,10 +155,9 @@ App.ScheduleStore = Ember.Object.createWithMixins(App.ObjectRetriever, {
     user: null,
     url: '/api/users/' + App.User + '/schedules',
     Schedules: function(callback) {
-        // returns a hash of schedules by year
-        // Each year is hashed by semester/term
-        var schedules = [];
+        // returns an array of year schedules
         var _this = this;
+        var schedules = [];
         this.getObjects(this.url, function(rawSchedules) {
             // TODO handle ajax schedule load fail
             if(rawSchedules.length > 0) {
@@ -165,6 +165,9 @@ App.ScheduleStore = Ember.Object.createWithMixins(App.ObjectRetriever, {
                 // asynchronously inflate the "schedules" array
                 deserializedList.forEach(function(item) {
                     schedules.addObject(item);
+                });
+                deserializedList.sort(function(a, b) {
+                    return a.get('year') - a.get('year'); 
                 });
             }
             callback();
@@ -209,10 +212,12 @@ App.ScheduleStore = Ember.Object.createWithMixins(App.ObjectRetriever, {
     },
     createYear: function(year, callback) {
         // create a new schedule year
-        var context = this;
-        
-        // TODO bug with number of terms in year, after repeated creates
-        var yearSchedule = App.YearSchedule.create();
+        var yearSchedule = App.YearSchedule.create({
+            semesters: [] // this fixes a bug that accumlated semesters
+                          // across calls to this function
+                          // ie: on the second call, it would return 8 semesters
+        });
+        console.log('num sems in yearSched', yearSchedule.get('semesters').length);
         yearSchedule.set('year', year);
 
         // create fall, winter, spring, summer terms
@@ -240,6 +245,7 @@ App.schedules = App.ScheduleStore.Schedules(function() {
 //        VIEWS        //
 /////////////////////////
 
+// thanks to http://jsfiddle.net/ud3323/5uX9H/ for drag n' drop tips
 App.Draggable = Ember.Mixin.create({
     attributeBindings: 'draggable',
     draggable: 'true',
@@ -250,7 +256,6 @@ App.Draggable = Ember.Mixin.create({
     }
 });
 
-// thanks to http://jsfiddle.net/ud3323/5uX9H/ for drag n' drop tips
 App.CourseView = Ember.View.extend(App.Draggable, {
     templateName: 'course', 
     dragStart: function(event) {
@@ -340,6 +345,7 @@ App.CatalogCourseInfoView = Ember.View.extend(App.Lightbox);
 // TODO handle year not found
 App.Router.map(function() {
     this.resource('schedule', {path: '/schedule/:year'});
+    this.route('notfound', {path: '/404'});
 });
 
 // /
@@ -348,17 +354,14 @@ App.IndexRoute = Ember.Route.extend({
         var startingSchedule, thisYear = new Date().getFullYear();
         if(App.schedules.length === 0) {
             // create a year if user has no schedules
-            console.log("NO schedules found");
             startingSchedule = App.ScheduleStore.createYear(thisYear);
             App.schedules.addObject(startingSchedule);
         }
         else {
             // Retrieve existing schedule, preferably for this year
-            console.log("Schedules found");
             startingSchedule = App.schedules.findProperty('year', thisYear);
-
             if(!startingSchedule) {
-                startingScehdule = App.schedules[0];
+                startingSchedule = App.schedules[0];
             }
         }
         this.transitionTo('schedule', startingSchedule);
@@ -372,10 +375,10 @@ App.ScheduleRoute = Ember.Route.extend({
     },
     model: function(params) {
         var model, yearParam;
-        yearParam = parseInt(params.year); // TODO check for NaN
+        yearParam = parseInt(params.year); // the if below handles if this is NaN
         model = App.schedules.findProperty('year', yearParam);
         if(!model) {
-            this.transitionTo('/');
+            this.transitionTo('notfound');
         }
         return model;
     },
@@ -408,7 +411,6 @@ App.ScheduleController = Ember.ObjectController.extend({
         }
     },
     remove: function(course) {
-        console.log('Removing', course);
         var semesters = this.get('content.semesters');
         semesters.forEach(function(semester) {
             // this looks insanely dangerous but it isn't
@@ -419,7 +421,6 @@ App.ScheduleController = Ember.ObjectController.extend({
             courses.removeObject(course);
             // save semester if item was removed
             if(courses.length < startingLength) {
-                console.log("item removed from " + semester.get('semester'));
                 semester.save();
             }
         });
@@ -427,9 +428,7 @@ App.ScheduleController = Ember.ObjectController.extend({
     addYear: function() {
         // get the largest year, add next one
         App.schedules.sort(function(a, b) {
-            var aYear = a.get('year');
-            var bYear = b.get('year');
-            return aYear - bYear;
+            return a.get('year') - b.get('year');
         });
 
         var newYear = App.schedules[App.schedules.length - 1].get('year') + 1;
