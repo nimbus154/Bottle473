@@ -466,6 +466,53 @@ body:before{
 	color: #fff;
 	font-size:0.6em;
 }
+/* MARKETING PAGE */
+#marketing_container{
+	display:block;
+	height:675px;
+	background: url('/static/css/images/marketing_bg.png');
+	background-repeat: both;
+}
+#tagline_marketing {
+	display:block;
+	width: 600px;
+    position: relative;
+    margin: 30px auto 0px;
+	padding-top:70px;
+	text-align:center;
+	font-size:2.0em;
+    font-weight:700;
+    box-shadow: 
+        inset 0 0 1px 1px rgba(255,255,255,0.08), 
+        0 10px 10px -10px rgba(0, 0, 0, 0.6);
+}
+#tagline_arrow{
+	display:block;
+	margin:50px auto;
+	width:200px;
+	height:125px;
+	background-color:#000;
+	color:#fff;
+	text-align:center;
+	border-radius: 8px 8px 8px 8px;
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#45484d), color-stop(100%,#000000));
+}
+#tagline_arrow a{
+	text-decoration:none;
+	font-size:6em;
+	color: #fff;
+}
+#tagline_marketing2 {
+    width: 600px;
+    position: relative;
+    margin: 30px auto 0px;
+	text-align:center;
+	font-size:2.0em;
+    font-weight:700;
+    box-shadow: 
+        inset 0 0 1px 1px rgba(255,255,255,0.08), 
+        0 10px 10px -10px rgba(0, 0, 0, 0.6);
+}
 /* LOGIN PAGE STYLE */
 #warning_box, #warning_box_register{
 	display:none;
@@ -598,7 +645,7 @@ body:before{
     font-weight:400;
     width: 300px;
     position: relative;
-    margin: 30px auto 30px;
+    margin: 30px auto 85px;
     padding: 10px;
     overflow: hidden;
     background: #f6f6f6;
