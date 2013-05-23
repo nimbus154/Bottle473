@@ -20,23 +20,17 @@ schedule_schema = {
         'user_id': {'type': 'any', 'required': False},
         'courses': {
             'type': 'array',
-            'items': [
+            'items': {'type': [
                 {
-                    'type': 'object',
+                    'type':'object',
                     'properties': {
                         'name': {'type': 'string'},
                         'number': {'type': 'integer'},
                         'dept': {'type': 'string'},
                         'description': {'type': 'string'},
-                    },
-                },
-            ],
-            'additionalItems': True,
-            'required': False
-        },
-        'courses': {
-            'type': 'array',
-            'items': [],
+                    }
+                }
+            ]},
             'additionalItems': True,
             'required': False
         }
